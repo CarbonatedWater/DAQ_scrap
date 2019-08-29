@@ -31,7 +31,7 @@ class Updater:
 
     # 방영정보 가져오기
     def get_content(self):
-        self.cur.execute("SELECT * FROM contents WHERE air_date >= '{}' ORDERY BY air_date;".format(self.THISWEEK_DATE))
+        self.cur.execute("SELECT * FROM contents WHERE air_date >= '{}' ORDER BY air_date;".format(self.THISWEEK_DATE))
         return self.cur.fetchall()
 
 

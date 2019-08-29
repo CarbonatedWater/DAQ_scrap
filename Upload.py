@@ -2,7 +2,6 @@
 웹페이지 생성 및 github 업로드
 """
 
-import git
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -36,14 +35,3 @@ def thisweek_html(contents, directory):
 
     p = Path(directory) / 'week' / 'index.html'
     p.write_text(html)
-
-
-def commit_push(directory):
-    repo = git.Repo(directory)
-    add_list = repo.untracked_files
-    if add_list:
-        repo.index.add(add_list)
-        new = 'Upload regular content info!'
-        repo.index.commit(new)
-        print(repo.index.commit(new).message)
-        repo.git.push('origin', master)
