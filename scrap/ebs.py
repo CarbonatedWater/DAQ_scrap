@@ -73,6 +73,12 @@ def scrap(prog_name, URL, original_air_date, week):
             day = re.compile(r"([0-9]{2})일").search(date).group(1)
             air_date = '-'.join([year, month, day])
             air_dates.append(air_date)
+        # 마지막 방영날짜와 처음 방영날짜의 차이가 2일 경우 중간 날짜 추가
+        last_date = datetime.strptime(air_dates[-1], '%Y-%m-%d')
+        first_date = datetime.strptime(air_dates[0], '%Y-%m-%d')
+        if (last_date - first_date).days == 2:
+            middle_date = last_date - timedelta(days=1)
+            air_dates.insert(1, str(middle_date)[:10])
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
@@ -80,6 +86,9 @@ def scrap(prog_name, URL, original_air_date, week):
         preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
         ## 서브 타이틀명 추출
         sub_titles_tag = soup.select('div.b_date > div > font > div')
+        if len(sub_titles_tag) <= 3:
+            sub_titles_tag = sub_titles_tag[:2]
+            sub_titles_tag.extend(soup.select('div.b_date > div > font > div:nth-of-type(3) > div'))
         sub_titles = []
         for sub_title_tmp in sub_titles_tag[2:]:
             sub_titles.append(sub_title_tmp.select_one('b').text.strip())
@@ -98,7 +107,7 @@ def scrap(prog_name, URL, original_air_date, week):
                 'title': '{} - {}'.format(title, sub_titles[i]), 
                 'preview_img': preview_img, 
                 'preview_mov': preview_mov, 
-                'description': descriptions[i]
+                'description': descriptions[i].replace('"', "'")
             })
 
         return results

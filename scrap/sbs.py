@@ -34,7 +34,7 @@ def scrap(prog_name, URL, original_air_date, week):
     air_date = str(regdate + timedelta(days=day_diff))
 
     air_num = re.search(r"([0-9]+)회", show_advance[0]['title']).group(1)
-    title = show_advance[0]['title']
+    title = show_advance[0]['title'].replace("[{}회] ".format(air_num), "")
     preview_img = "https:" + show_advance[0]['thumb']['large']
     preview_mov = None
     description = show_advance[0]['link_url']
@@ -45,7 +45,7 @@ def scrap(prog_name, URL, original_air_date, week):
         'title': title, 
         'preview_img': preview_img, 
         'preview_mov': preview_mov, 
-        'description': description
+        'description': description.replace('"', "'")
     }
     
     return [result]

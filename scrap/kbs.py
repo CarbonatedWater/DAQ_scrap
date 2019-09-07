@@ -67,7 +67,7 @@ def scrap(prog_name, URL, original_air_date, week):
         preview_mov = REFER + content_info['NEWS_VOD_URL'].replace('|N|Y|N|', '')
         description = ''
         regdate_tmp = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", content_info['NEWS_REG_DATE']).group()
-    elif prog_name in ['추적 60분', 'KBS 스페셜', '제보자들', '특파원 보고 세계는 지금', '세상의 모든 다큐']:
+    elif prog_name in ['추적 60분', 'KBS 스페셜', '제보자들', '세상의 모든 다큐', '특파원 보고 세계는 지금']:
         param_b['bbs_id'] = bbs_id[prog_name]
         resp = s.get(URL, params=param_b)
         #print(resp.text)
@@ -81,6 +81,19 @@ def scrap(prog_name, URL, original_air_date, week):
             preview_img = json.loads(preview_img_tmp)[0]
         preview_mov = ''
         description = content_info['description']
+        # 디스크립션 수정
+        if prog_name ==  '제보자들':
+            if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
+                front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
+                description = content_info['description'].replace(front_padding, "")
+        elif prog_name ==  '특파원 보고 세계는 지금':
+            if re.compile(r"^.+내용■ ").search(content_info['description']) is not None:
+                front_padding = re.compile(r"^(.+내용■ )").search(content_info['description']).group(1)
+                description = content_info['description'].replace(front_padding, "")
+            if re.compile(r"^.+회■ ").search(content_info['description']) is not None:
+                front_padding = re.compile(r"^(.+회■ )").search(content_info['description']).group(1)
+                description = content_info['description'].replace(front_padding, "")
+        # 등록일 처리
         if prog_name != '세상의 모든 다큐':
             regdate_tmp = content_info['rdatetime'].split()[0]
         else:
@@ -96,7 +109,7 @@ def scrap(prog_name, URL, original_air_date, week):
         'title': title, 
         'preview_img': preview_img, 
         'preview_mov': preview_mov, 
-        'description': description
+        'description': description.replace('"', "'")
     }
     
     return [result]

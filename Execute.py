@@ -7,6 +7,7 @@ import random
 from datetime import datetime, timedelta
 from scrap import sbs, jtbc, ebs, kbs, mbc
 import Upload
+import query
 
 
 class Updater:
@@ -24,6 +25,7 @@ class Updater:
         self.TODAY = datetime.today().date()
         self.TODAY_DATE = self.TODAY.weekday()
         self.THISWEEK_DATE = self.TODAY - timedelta(self.TODAY.weekday())
+        self.THISWEEK_LAST_DATE = self.TODAY + timedelta(days=6)
         self.conn = sqlite3.connect(self.PATH_DB)
         self.cur = self.conn.cursor()
         print("===== LOG {} =====".format(self.TODAY))
@@ -31,7 +33,9 @@ class Updater:
 
     # 방영정보 가져오기
     def get_content(self):
-        self.cur.execute("SELECT * FROM contents WHERE air_date >= '{}' ORDER BY air_date;".format(self.THISWEEK_DATE))
+        self.cur.execute(query.get_thisweek_air_info.format(
+            self.THISWEEK_DATE, self.THISWEEK_LAST_DATE)
+        )
         return self.cur.fetchall()
 
 
@@ -60,42 +64,68 @@ class Updater:
             # 방영정보 스크랩
             results = self.SCRAPER[CH](NAME, URL, air_dates, self.WEEK)
             # 프로그램 회차 추출
-            self.cur.execute("SELECT air_num FROM contents WHERE id = {} ORDER BY air_num DESC LIMIT 1;".format(ID))
+            self.cur.execute(query.get_program_air_num.format(ID))
             tmp = self.cur.fetchone()
             print("===== air No.: {}".format(tmp))
             for result in results:
+                print('===== new scraped result: {}'.format(result))
+                null_items = []
+                for k, v in result.items():
+                    if v is None:
+                        null_items.append(k)
+                        result[k] = 'NULL'
+                    if k == 'title':
+                        result[k] = v
+                insert_columns = [col for col in list(result.keys()) if col not in null_items]
+                insert_values = ['%s' % result[x] if x != 'air_num' else result[x] for x in insert_columns]
                 if (tmp is None) or (int(result['air_num']) > tmp[0]):
-                    print('===== new scraped result: {}'.format(result))
-                    null_items = []
-                    for k, v in result.items():
-                        if v is None:
-                            null_items.append(k)
-                            result[k] = 'NULL'
-                        if k == 'title':
-                            result[k] = v
-                    insert_columns = [col for col in list(result.keys()) if col not in null_items]
-                    insert_values = ['%s' % result[x] if x != 'air_num' else result[x] for x in insert_columns]
-                    INSERT_QUERY = "INSERT INTO contents (id, {}) VALUES (?, {}?)".format((", ").join(insert_columns), "?, " * (len(insert_values) - 1))
+                    # 기존에 없던 정보는 insert로 추가    
+                    INSERT_QUERY = query.insert_new_air_info.format((", ").join(insert_columns), "?, " * (len(insert_values) - 1))
                     print(INSERT_QUERY)
                     final_insert_values = tuple([ID] + insert_values)
                     print(final_insert_values)
                     self.cur.execute(INSERT_QUERY, (final_insert_values))
-                    self.conn.commit()
-                    new_content_cnt += 1
+                elif (int(result['air_num']) == tmp[0]):
+                    # 기존에 있던 정보는 업데이트
+                    UPDATE_QUERY = query.update_new_air_info.format(
+                        result['air_date'], result['air_num'], result['title'], 
+                        result['preview_img'], result['preview_mov'], result['description'], 
+                        ID, result['air_num'], result['air_date'] # WHERE 조건
+                    )
+                    print(UPDATE_QUERY)
+                    self.cur.execute(UPDATE_QUERY)
+                else:
+                    pass
+                
+                self.conn.commit()
+                new_content_cnt += 1
 
         return new_content_cnt
 
+
+    # 프로그램 정보 가져오기
+    def get_program_info(self, program_name):
+        self.cur.execute(query.get_program_air_info_10.format(program_name))
+        return self.cur.fetchall()
 
 
 if __name__ == "__main__":
     updater = Updater()
     # 1. 프로그램 정보 체크
-    new_info_cnt = updater.content_check(sys.argv[1])    
+    #new_info_cnt = updater.content_check('EBS')
+    new_info_cnt = updater.content_check(sys.argv[1])
     print('===== scraping completed! new preview: {}'.format(new_info_cnt))
-    # 2. 페이지 생성
+    # 2. 이번주 방영정보 페이지 생성
     if new_info_cnt > 0:
         new_contents = updater.get_content()
-        Upload.thisweek_html(new_contents, './pages')
-    
+        Upload.thisweek_html(new_contents, 'week')
+    # 3. 프로그램별 방영리스트 페이지 생성
+    with open('./program_img_id.json', 'r') as f:
+        program_img_id = json.load(f)
+    for program in program_img_id.items():
+        program_data = updater.get_program_info(program[0])
+        Upload.program_detail_html(program_data, program[1])
+        print("===== {} air page is created!".format(program[0]))
+
     updater.cur.close()
     updater.conn.close()

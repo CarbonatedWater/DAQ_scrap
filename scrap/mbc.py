@@ -47,7 +47,7 @@ def scrap(prog_name, URL, original_air_date, week):
         'title': title, 
         'preview_img': preview_img, 
         'preview_mov': preview_mov, 
-        'description': description
+        'description': description.replace('"', "'")
     }
 
     return [result]
