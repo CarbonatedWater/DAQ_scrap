@@ -92,7 +92,7 @@ for r in result:
 # 본문 수정
 test = result[-1]
 re.compile(r"(\d+회방송일시.+)첫 번째").search(test[-1]).group(1)
-"회" test[1]
+
 
 amend_query = """
 UPDATE contents 

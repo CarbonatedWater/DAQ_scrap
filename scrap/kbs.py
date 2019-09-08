@@ -83,6 +83,9 @@ def scrap(prog_name, URL, original_air_date, week):
         description = content_info['description']
         # 디스크립션 수정
         if prog_name ==  '제보자들':
+            # air number, title 수정
+            air_num = title.replace("회", "")
+            title = ''
             if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
