@@ -12,16 +12,16 @@ from scrap import utils
 
 REFER = 'https://programs.sbs.co.kr/'
 
-btv_con_id = {
+BTV_CON_ID = {
     'SBS 스페셜': '{A4FA8AF7-6AC3-11E8-BC2D-BD92772229B5}', 
     '그것이 알고싶다': '{C5AEC9FC-E1FB-493A-BF5E-69902B04F38A}', 
     '궁금한 이야기 Y': '{4BD19D72-285F-4629-A98F-3563064BD64A}'   
 }
 
 
-def scrap(prog_name, URL, original_air_date, week):
+def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
-    resp = s.get(URL)
+    resp = s.get(url)
     #soup = BeautifulSoup(resp.text, 'lxml')
     content = json.loads(resp.text)
     if prog_name in ["궁금한 이야기 Y", "그것이 알고싶다"]:
@@ -39,7 +39,7 @@ def scrap(prog_name, URL, original_air_date, week):
     preview_mov = None
     description = show_advance[0]['link_url']
     # sk BTV 정보 보완
-    btv_info = utils.get_btv_info(btv_con_id[prog_name])
+    btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
     if btv_info:
         try:
             air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()

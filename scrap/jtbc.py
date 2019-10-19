@@ -17,9 +17,9 @@ btv_con_id = {
 }
 
 
-def scrap(prog_name, URL, original_air_date, week):
+def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
-    resp = s.get(URL)
+    resp = s.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
     if prog_name == '이규연의 스포트라이트':
         content = soup.select_one('div.bx_preview')

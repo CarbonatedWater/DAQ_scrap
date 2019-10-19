@@ -13,7 +13,7 @@ from scrap import utils
 
 REFER = 'http://m.imbc.com'
 
-btv_con_id = {
+BTV_CON_ID = {
     'MBC 스페셜': '{E0D9A6AC-5A6F-11E8-91B3-AF1AD3B8D2B6}', 
     'PD수첩': '{B03D32D2-3881-4409-AE53-3CC57DC7C271}', 
     '탐사기획 스트레이트': '{6CBA8FDB-9EEA-4008-8D0D-F6DC244969F3}', 
@@ -29,9 +29,9 @@ def next_weekday(d, weekday):
     return d + timedelta(days_ahead)
 
 
-def scrap(prog_name, URL, original_air_date, week):
+def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
-    resp = s.get(URL)
+    resp = s.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
     new_item = soup.select_one('section.preview-wrap')
     title = new_item.select_one('p').text
@@ -41,7 +41,7 @@ def scrap(prog_name, URL, original_air_date, week):
     description = ''
     air_date = new_item.select_one('span.date').text.replace('.', '-')
     # sk BTV 정보 보완
-    btv_info = utils.get_btv_info(btv_con_id[prog_name])
+    btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
     print(btv_info)
     if btv_info:
         try:

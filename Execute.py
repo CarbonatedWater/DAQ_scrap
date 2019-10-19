@@ -47,22 +47,22 @@ class Updater:
             self.cur.execute("SELECT id, title, ch, url FROM programs WHERE ch = '{}';".format(ch))
         else:
             self.cur.execute("SELECT id, title, ch, url FROM programs;")
-        LST_PROGRAMS = self.cur.fetchall()
+        lst_programs = self.cur.fetchall()
 
-        for prog in LST_PROGRAMS:
+        for prog in lst_programs:
             time.sleep(random.randint(3, 8))
             print('===== prog: {}'.format(prog))
-            ID = prog[0]
-            NAME = prog[1]
-            CH = prog[2]
-            URL = prog[3]
+            _id = prog[0]
+            name = prog[1]
+            ch = prog[2]
+            url = prog[3]
             # 프로그램 방영일 추출
-            self.cur.execute("SELECT on_day FROM programs WHERE id = {};".format(ID))
+            self.cur.execute("SELECT on_day FROM programs WHERE id = {};".format(_id))
             tmp = self.cur.fetchone()
             air_dates = tmp[0].split(',')
             print("===== air date: {}".format(air_dates))
             # 방영정보 스크랩
-            results = self.SCRAPER[CH](NAME, URL, air_dates, self.WEEK)
+            results = self.SCRAPER[ch](name, url, air_dates, self.WEEK)
             # 프로그램 회차 추출
             self.cur.execute(query.get_program_air_num.format(ID))
             tmp = self.cur.fetchone()
@@ -80,20 +80,20 @@ class Updater:
                 insert_values = ['%s' % result[x] if x != 'air_num' else result[x] for x in insert_columns]
                 if (tmp is None) or (int(result['air_num']) > tmp[0]):
                     # 기존에 없던 정보는 insert로 추가    
-                    INSERT_QUERY = query.insert_new_air_info.format((", ").join(insert_columns), "?, " * (len(insert_values) - 1))
-                    print(INSERT_QUERY)
-                    final_insert_values = tuple([ID] + insert_values)
+                    insert_query = query.insert_new_air_info.format((", ").join(insert_columns), "?, " * (len(insert_values) - 1))
+                    print(insert_query)
+                    final_insert_values = tuple([_id] + insert_values)
                     print(final_insert_values)
-                    self.cur.execute(INSERT_QUERY, (final_insert_values))
+                    self.cur.execute(insert_query, (final_insert_values))
                 elif (int(result['air_num']) == tmp[0]):
                     # 기존에 있던 정보는 업데이트
-                    UPDATE_QUERY = query.update_new_air_info.format(
+                    update_query = query.update_new_air_info.format(
                         result['air_date'], result['air_num'], result['title'], 
                         result['preview_img'], result['preview_mov'], result['description'], 
-                        ID, result['air_num'], result['air_date'] # WHERE 조건
+                        _id, result['air_num'], result['air_date'] # WHERE 조건
                     )
-                    print(UPDATE_QUERY)
-                    self.cur.execute(UPDATE_QUERY)
+                    print(update_query)
+                    self.cur.execute(update_query)
                 else:
                     pass
                 

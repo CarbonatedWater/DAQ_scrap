@@ -13,7 +13,7 @@ from scrap import utils
 
 REFER = 'http://news.kbs.co.kr'
 
-param_a = {
+PARAM_A = {
     'SEARCH_SECTION': '0001', 
     'SEARCH_CATEGORY': '0001',
     'CURRENT_PAGE_NO': 1,
@@ -29,11 +29,11 @@ param_a = {
     'SEARCH_PREVIEW_YN': 'Y'
 }
 
-param_b = {
+PARAM_B = {
     'page_size': 1
 }
 
-bbs_id = {
+BBS_ID = {
     '추적 60분': 'T2000-0088-04-907289', 
     'KBS 스페셜': 'T2016-0065-04-622234', 
     '제보자들': 'T2016-0629-04-741959', 
@@ -41,7 +41,7 @@ bbs_id = {
     '세상의 모든 다큐': 'T2011-0923-04-569614'
 }
 
-btv_con_id = {
+BTV_CON_ID = {
     '제보자들': '{C18F4D30-81E7-4187-B03C-CF81083D46E1}', 
     '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}'
 }
@@ -54,10 +54,10 @@ def next_weekday(d, weekday):
     return d + timedelta(days_ahead)
 
 
-def scrap(prog_name, URL, original_air_date, week):
+def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
     if prog_name == '시사기획 창':
-        resp = s.post(URL, data=param_a)
+        resp = s.post(url, data=PARAM_A)
         content_info = json.loads(resp.text)['page_list'][0]
         title =  content_info['NEWS_TITLE'].split(' : ')[1]
         air_num = content_info['NEWS_CODE']
@@ -66,8 +66,8 @@ def scrap(prog_name, URL, original_air_date, week):
         description = ''
         regdate_tmp = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", content_info['NEWS_REG_DATE']).group()
     elif prog_name in ['추적 60분', 'KBS 스페셜', '제보자들', '세상의 모든 다큐', '특파원 보고 세계는 지금']:
-        param_b['bbs_id'] = bbs_id[prog_name]
-        resp = s.get(URL, params=param_b)
+        PARAM_B['bbs_id'] = BBS_ID[prog_name]
+        resp = s.get(url, params=PARAM_B)
         #print(resp.text)
         content_info = json.loads(resp.text)['data'][0]
         title = content_info['title'].split('/')[0].strip()
@@ -105,7 +105,7 @@ def scrap(prog_name, URL, original_air_date, week):
     air_date = str(next_weekday(regdate, week.index(original_air_date[0])))
     if prog_name == '시사기획 창':
         # sk BTV 정보 보완
-        btv_info = utils.get_btv_info(btv_con_id[prog_name])
+        btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
         if btv_info:
             try:
                 air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
