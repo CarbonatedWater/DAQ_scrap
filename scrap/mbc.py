@@ -8,17 +8,17 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 import time
+from scrap import utils
 
 
 REFER = 'http://m.imbc.com'
 
-
-# 함수: 세션생성
-def sess(refer):
-    AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1'
-    s = requests.Session()
-    s.headers.update({'User-Agent': AGENT, 'Referer': refer})
-    return s
+btv_con_id = {
+    'MBC 스페셜': '{E0D9A6AC-5A6F-11E8-91B3-AF1AD3B8D2B6}', 
+    'PD수첩': '{B03D32D2-3881-4409-AE53-3CC57DC7C271}', 
+    '탐사기획 스트레이트': '{6CBA8FDB-9EEA-4008-8D0D-F6DC244969F3}', 
+    '실화탐사대': '{7A96FC40-E748-40F2-B435-801E56DD3C64}'
+}
 
 
 # 함수: 다음 요일 찾기
@@ -30,7 +30,7 @@ def next_weekday(d, weekday):
 
 
 def scrap(prog_name, URL, original_air_date, week):
-    s = sess(REFER)
+    s = utils.sess(REFER)
     resp = s.get(URL)
     soup = BeautifulSoup(resp.text, 'lxml')
     new_item = soup.select_one('section.preview-wrap')
@@ -40,6 +40,18 @@ def scrap(prog_name, URL, original_air_date, week):
     preview_img = new_item.select_one('img')['src']
     description = ''
     air_date = new_item.select_one('span.date').text.replace('.', '-')
+    # sk BTV 정보 보완
+    btv_info = utils.get_btv_info(btv_con_id[prog_name])
+    print(btv_info)
+    if btv_info:
+        try:
+            air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+        except:
+            print('===== air_date_check error')
+            pass
+        print('===== air_date_check: %s' % str(parse('20' + air_date_check).date()))
+        if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
+            description = btv_info['content']['c_desc']
     
     result = {
         'air_date': air_date, 

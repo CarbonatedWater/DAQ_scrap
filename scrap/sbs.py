@@ -2,25 +2,25 @@
 SBS 프로그램 수집
 """
 
-import requests
 import json
 import re
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+from bs4 import BeautifulSoup 
+from scrap import utils
 
 
 REFER = 'https://programs.sbs.co.kr/'
 
-# 함수: 세션생성
-def sess(refer):
-    AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
-    s = requests.Session()
-    s.headers.update({'User-Agent': AGENT, 'Referer': refer})
-    return s
+btv_con_id = {
+    'SBS 스페셜': '{A4FA8AF7-6AC3-11E8-BC2D-BD92772229B5}', 
+    '그것이 알고싶다': '{C5AEC9FC-E1FB-493A-BF5E-69902B04F38A}', 
+    '궁금한 이야기 Y': '{4BD19D72-285F-4629-A98F-3563064BD64A}'   
+}
 
 
 def scrap(prog_name, URL, original_air_date, week):
-    s = sess(REFER)
+    s = utils.sess(REFER)
     resp = s.get(URL)
     #soup = BeautifulSoup(resp.text, 'lxml')
     content = json.loads(resp.text)
@@ -38,6 +38,15 @@ def scrap(prog_name, URL, original_air_date, week):
     preview_img = "https:" + show_advance[0]['thumb']['large']
     preview_mov = None
     description = show_advance[0]['link_url']
+    # sk BTV 정보 보완
+    btv_info = utils.get_btv_info(btv_con_id[prog_name])
+    if btv_info:
+        try:
+            air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+        except:
+            pass
+        if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
+            description = btv_info['content']['c_desc']
     
     result = {
         'air_date': air_date, 
@@ -47,5 +56,5 @@ def scrap(prog_name, URL, original_air_date, week):
         'preview_mov': preview_mov, 
         'description': description.replace('"', "'")
     }
-    
+
     return [result]

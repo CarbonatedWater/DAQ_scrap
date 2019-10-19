@@ -8,6 +8,7 @@ import json
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 import time
+from scrap import utils
 
 
 REFER = 'http://news.kbs.co.kr'
@@ -40,13 +41,10 @@ bbs_id = {
     '세상의 모든 다큐': 'T2011-0923-04-569614'
 }
 
-
-# 함수: 세션생성
-def sess(refer):
-    AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
-    s = requests.Session()
-    s.headers.update({'User-Agent': AGENT, 'Referer': refer})
-    return s
+btv_con_id = {
+    '제보자들': '{C18F4D30-81E7-4187-B03C-CF81083D46E1}', 
+    '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}'
+}
 
 # 함수: 다음 요일 찾기
 def next_weekday(d, weekday):
@@ -57,7 +55,7 @@ def next_weekday(d, weekday):
 
 
 def scrap(prog_name, URL, original_air_date, week):
-    s = sess(REFER)
+    s = utils.sess(REFER)
     if prog_name == '시사기획 창':
         resp = s.post(URL, data=param_a)
         content_info = json.loads(resp.text)['page_list'][0]
@@ -72,7 +70,7 @@ def scrap(prog_name, URL, original_air_date, week):
         resp = s.get(URL, params=param_b)
         #print(resp.text)
         content_info = json.loads(resp.text)['data'][0]
-        title = content_info['title'].split(' / ')[0]
+        title = content_info['title'].split('/')[0].strip()
         air_num = content_info['id']
         preview_img_tmp = content_info['post_cont_image']
         if preview_img_tmp is None:
@@ -105,6 +103,16 @@ def scrap(prog_name, URL, original_air_date, week):
     
     regdate = parse(regdate_tmp).date()
     air_date = str(next_weekday(regdate, week.index(original_air_date[0])))
+    if prog_name == '시사기획 창':
+        # sk BTV 정보 보완
+        btv_info = utils.get_btv_info(btv_con_id[prog_name])
+        if btv_info:
+            try:
+                air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+            except:
+                pass
+            if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
+                description = btv_info['content']['c_desc']
     
     result = {
         'air_date': air_date, 

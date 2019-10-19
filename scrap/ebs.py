@@ -8,20 +8,18 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 import time
+from scrap import utils
 
 
 REFER = 'http://home.ebs.co.kr/'
 
-# 함수: 세션생성
-def sess(refer):
-    AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
-    s = requests.Session()
-    s.headers.update({'User-Agent': AGENT, 'Referer': refer})
-    return s
+btv_con_id = {
+    '다큐 시선': '{617E3A57-A40A-11E7-A50E-376259EF559C}'
+}
 
 
 def scrap(prog_name, URL, original_air_date, week):
-    s = sess(REFER)
+    s = utils.sess(REFER)
     resp = s.get(URL)
     soup = BeautifulSoup(resp.text, 'lxml')
     new_item = soup.select('tbody#itemList > tr')[0]
@@ -47,6 +45,17 @@ def scrap(prog_name, URL, original_air_date, week):
             if re.search("EBS", text):
                 air_date_tmp = re.search(r"[0-9]{4}년 ?[0-9]{1,2}월 ?[0-9]{1,2}일", text).group()
         air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())
+        # sk BTV 정보 보완
+        btv_info = utils.get_btv_info(btv_con_id[prog_name])
+        if btv_info:
+            try:
+                air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+            except:
+                pass
+            if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
+                description = btv_info['content']['c_desc']
+                preview_img = btv_info['content']['hd_series'][0]['thumb_image'].\
+                replace('195x110', '390x220')
 
         result = {
             'air_date': air_date, 
@@ -54,7 +63,7 @@ def scrap(prog_name, URL, original_air_date, week):
             'title': title, 
             'preview_img': preview_img, 
             'preview_mov': preview_mov, 
-            'description': description
+            'description': description.replace('"', "'")
         }
 
         return [result]
@@ -83,7 +92,10 @@ def scrap(prog_name, URL, original_air_date, week):
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
         preview_img = soup.select_one('div.view_con > div.gallery img')['src']
-        preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
+        try:
+            preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
+        except KeyError:
+            preview_mov = ''
         ## 서브 타이틀명 추출
         sub_titles_tag = soup.select('div.b_date > div > font > div')
         if len(sub_titles_tag) <= 3:

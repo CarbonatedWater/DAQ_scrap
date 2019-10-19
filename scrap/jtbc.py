@@ -6,20 +6,19 @@ import requests
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+from scrap import utils
 
 
 REFER = 'https://http://tv.jtbc.joins.com/'
 
-# 함수: 세션생성
-def sess(refer):
-    AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
-    s = requests.Session()
-    s.headers.update({'User-Agent': AGENT, 'Referer': refer})
-    return s
+
+btv_con_id = {
+    '차이나는 클라스': '{6DEACDCD-2166-4599-9B9B-77B5938ED1F0}'
+}
 
 
 def scrap(prog_name, URL, original_air_date, week):
-    s = sess(REFER)
+    s = utils.sess(REFER)
     resp = s.get(URL)
     soup = BeautifulSoup(resp.text, 'lxml')
     if prog_name == '이규연의 스포트라이트':
