@@ -97,12 +97,17 @@ def scrap(prog_name, url, original_air_date, week):
         except KeyError:
             preview_mov = ''
         ## 서브 타이틀명 추출
+        sub_titles = [] # 서브타이틀 저장 리스트
         sub_titles_tag = soup.select('div.b_date > div > font > div')
         if len(sub_titles_tag) <= 3:
             sub_titles_tag = sub_titles_tag[:2]
             sub_titles_tag.extend(soup.select('div.b_date > div > font > div:nth-of-type(3) > div'))
-        sub_titles = []
+        else:
+            title_target = sub_titles_tag[2]
+            sub_titles_tag = sub_titles_tag[:2]
+            sub_titles_tag.extend(title_target.select('div'))
         for sub_title_tmp in sub_titles_tag[2:]:
+            print("===== sub_title_tmp: %s" % sub_title_tmp)
             sub_titles.append(sub_title_tmp.select_one('b').text.strip())
         ## 회차설명 추출
         descriptions = []
