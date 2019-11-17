@@ -42,7 +42,7 @@ def scrap(prog_name, url, original_air_date, week):
     air_date = new_item.select_one('span.date').text.replace('.', '-')
     # sk BTV 정보 보완
     btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
-    print(btv_info)
+    #print(btv_info)
     if btv_info:
         try:
             air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()

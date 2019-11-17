@@ -67,6 +67,7 @@ def scrap(prog_name, url, original_air_date, week):
         }
 
         return [result]
+        
     elif prog_name == '다큐프라임':
         title = "<%s>" % title
         air_num = new_item.select_one('td').text
@@ -99,16 +100,10 @@ def scrap(prog_name, url, original_air_date, week):
         ## 서브 타이틀명 추출
         sub_titles = [] # 서브타이틀 저장 리스트
         sub_titles_tag = soup.select('div.b_date > div > font > div')
-        if len(sub_titles_tag) <= 3:
-            sub_titles_tag = sub_titles_tag[:2]
-            sub_titles_tag.extend(soup.select('div.b_date > div > font > div:nth-of-type(3) > div'))
-        else:
-            title_target = sub_titles_tag[2]
-            sub_titles_tag = sub_titles_tag[:2]
-            sub_titles_tag.extend(title_target.select('div'))
-        for sub_title_tmp in sub_titles_tag[2:]:
-            print("===== sub_title_tmp: %s" % sub_title_tmp)
-            sub_titles.append(sub_title_tmp.select_one('b').text.strip())
+        for sub_title_tag in sub_titles_tag:
+            matched = re.compile(r"\d+부\..*").search(sub_title_tag.text)
+            if matched:
+                sub_titles.append(matched.group())
         ## 회차설명 추출
         descriptions = []
         for desc in soup.select('div.summary > div.con_detail')[1:]:
