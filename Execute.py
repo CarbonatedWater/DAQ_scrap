@@ -50,12 +50,12 @@ class Updater:
         lst_programs = self.cur.fetchall()
 
         for prog in lst_programs:
+            if prog[1] == "추적 60분": # 방영 종료
+                continue
             time.sleep(random.randint(3, 8))
             print('===== prog: {}'.format(prog))
             _id = prog[0]
             name = prog[1]
-            if name == "추적 60분": # 방영 종료
-                continue
             ch = prog[2]
             url = prog[3]
             # 프로그램 방영일 추출

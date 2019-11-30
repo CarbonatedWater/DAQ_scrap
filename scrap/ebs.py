@@ -103,7 +103,6 @@ def scrap(prog_name, url, original_air_date, week):
         ## 서브 타이틀명 추출
         if (last_date - first_date).days == 0:
             sub_titles = [soup.select_one('div.view_con > h3').text]
-            descriptions = []
         else:
             sub_titles = [] # 서브타이틀 저장 리스트
             sub_titles_tag = soup.select('div.b_date > div > font > div')
