@@ -114,10 +114,14 @@ def scrap(prog_name, url, original_air_date, week):
         ## 회차설명 추출
         descriptions = []
         for desc in soup.select('div.summary > div.con_detail')[1:]:
+            desc_tmp = ''
             if desc.select('div'):
-                descriptions.append(desc.select('div')[2].text)
+                div_texts = desc.select('div')[2:]
             elif desc.select('p'):
-                descriptions.append(desc.select('p')[2].text)
+                div_texts = desc.select('p')[2:]
+            for div_text in div_texts:
+                desc_tmp += div_text.text
+            descriptions.append(desc_tmp)
         
         # DB 삽입 결과 생성
         results = []
