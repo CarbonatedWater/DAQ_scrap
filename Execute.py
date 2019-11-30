@@ -54,6 +54,8 @@ class Updater:
             print('===== prog: {}'.format(prog))
             _id = prog[0]
             name = prog[1]
+            if name == "추적 60분": # 방영 종료
+                continue
             ch = prog[2]
             url = prog[3]
             # 프로그램 방영일 추출
@@ -83,7 +85,7 @@ class Updater:
                     insert_query = query.insert_new_air_info.format((", ").join(insert_columns), "?, " * (len(insert_values) - 1))
                     print(insert_query)
                     final_insert_values = tuple([_id] + insert_values)
-                    print(final_insert_values)
+                    #print(final_insert_values)
                     self.cur.execute(insert_query, (final_insert_values))
                 elif (int(result['air_num']) == tmp[0]):
                     # 기존에 있던 정보는 업데이트

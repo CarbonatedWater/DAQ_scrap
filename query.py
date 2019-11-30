@@ -16,7 +16,7 @@ insert_new_air_info = "INSERT INTO contents (id, {}) VALUES (?, {}?)"
 update_new_air_info = """
 UPDATE contents 
 SET 
-air_date = {}, 
+air_date = '{}', 
 air_num = {},
 title =  '{}', 
 preview_img = '{}', 

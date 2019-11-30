@@ -89,6 +89,8 @@ def scrap(prog_name, url, original_air_date, week):
         if (last_date - first_date).days == 2:
             middle_date = last_date - timedelta(days=1)
             air_dates.insert(1, str(middle_date)[:10])
+        elif last_date == first_date:
+            air_dates.pop(1)
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
@@ -97,13 +99,19 @@ def scrap(prog_name, url, original_air_date, week):
             preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
         except KeyError:
             preview_mov = ''
+        
         ## 서브 타이틀명 추출
-        sub_titles = [] # 서브타이틀 저장 리스트
-        sub_titles_tag = soup.select('div.b_date > div > font > div')
-        for sub_title_tag in sub_titles_tag:
-            matched = re.compile(r"\d+부\..*").search(sub_title_tag.text)
-            if matched:
-                sub_titles.append(matched.group())
+        if (last_date - first_date).days == 0:
+            sub_titles = [soup.select_one('div.view_con > h3').text]
+            descriptions = []
+        else:
+            sub_titles = [] # 서브타이틀 저장 리스트
+            sub_titles_tag = soup.select('div.b_date > div > font > div')
+            for sub_title_tag in sub_titles_tag:
+                matched = re.compile(r"\d+부\..*").search(sub_title_tag.text)
+                if matched:
+                    sub_titles.append(matched.group())
+        
         ## 회차설명 추출
         descriptions = []
         for desc in soup.select('div.summary > div.con_detail')[1:]:
@@ -111,6 +119,8 @@ def scrap(prog_name, url, original_air_date, week):
                 descriptions.append(desc.select('div')[2].text)
             elif desc.select('p'):
                 descriptions.append(desc.select('p')[2].text)
+        
+        # DB 삽입 결과 생성
         results = []
         for i in range(len(air_dates)):
             results.append({
