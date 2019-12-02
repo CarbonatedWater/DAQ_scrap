@@ -70,7 +70,7 @@ class Updater:
             tmp = self.cur.fetchone()
             print("===== air No.: {}".format(tmp))
             for result in results:
-                print('===== new scraped result: {}'.format(result))
+                #print('===== new scraped result: {}'.format(result))
                 null_items = []
                 for k, v in result.items():
                     if v is None:
