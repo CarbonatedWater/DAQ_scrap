@@ -109,6 +109,12 @@ class Updater:
     def get_program_info(self, program_name):
         self.cur.execute(query.get_program_air_info_10.format(program_name))
         return self.cur.fetchall()
+    
+
+    # 프로그램 방영시간 기정보 가져오기
+    def get_program_air_time(self):
+        self.cur.execute(query.get_program_air_time)
+        return self.cur.fetchall()
 
 
 if __name__ == "__main__":
@@ -120,7 +126,10 @@ if __name__ == "__main__":
     # 2. 이번주 방영정보 페이지 생성
     if new_info_cnt > 0:
         new_contents = updater.get_content()
-        Upload.thisweek_html(new_contents, 'week')
+        # 방영시간 정보 추출
+        air_times = updater.get_program_air_time()
+        print(air_times)
+        Upload.thisweek_html(new_contents, air_times, 'week')
     # 3. 프로그램별 방영리스트 페이지 생성
     with open('./program_img_id.json', 'r') as f:
         program_img_id = json.load(f)

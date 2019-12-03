@@ -24,3 +24,5 @@ preview_mov = '{}',
 description = "{}" 
 WHERE id = {} AND air_num = {} AND air_date = '{}';
 """
+
+get_program_air_time = "SELECT on_time FROM programs ORDER BY id;"
