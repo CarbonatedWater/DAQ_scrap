@@ -29,13 +29,13 @@ def thisweek_html(contents, air_times, directory):
         tmp_td = ''
         program_id = None
         for i, col in enumerate(content):
-            if i == 0:
-                # 프로그램 id 저장
-                program_id = col
-            elif i == 3:
+            if i == 3:
                 program_air_time = air_times[program_id-1][0]
                 tmp_td += "<td>{} {}</td>".format(col, program_air_time)
             else:
+                if i == 0:
+                    # 프로그램 id 저장
+                    program_id = col
                 tmp_td += "<td>{}</td>".format(col)
         inner += "<tr>{}</tr>".format(tmp_td)
     
