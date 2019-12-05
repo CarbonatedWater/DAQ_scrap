@@ -29,6 +29,12 @@ programs[12][8] = "http://program.kbs.co.kr/2tv/culture/storyhunter/pc/?section_
 programs[13][8] = "http://program.kbs.co.kr/1tv/news/worldreport/pc/?section_id=1759"
 programs[14][8] = "http://program.kbs.co.kr/2tv/culture/worlddocu/pc/?section_id=1761"
 
+# 디스크립션의 개행기호 오류 수정
+for program in programs:
+    print(program[6])
+    program[6] = program[6].replace('\\n', '\n')
+    print(program[6])
+
 
 # SBS 프로그램 타이틀 제목 수정
 cur.execute("SELECT * FROM contents WHERE id BETWEEN 1 AND 3;")

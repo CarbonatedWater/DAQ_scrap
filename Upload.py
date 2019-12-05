@@ -45,7 +45,7 @@ def thisweek_html(contents, air_times, directory):
     p.write_text(html)
 
 
-def program_detail_html(contents, directory):
+def air_detail_html(contents, directory):
     inner = ''
 
     for content in contents:
@@ -57,4 +57,19 @@ def program_detail_html(contents, directory):
     html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
 
     p = Path('./pages/airlist') / directory / 'index.html'
+    p.write_text(html)
+
+
+def program_detail_html(contents, directory):
+    inner = ''
+
+    for content in contents:
+        tmp_td = ''
+        for col in content:
+            tmp_td += "<td>{}</td>".format(col)
+        inner += "<tr>{}</tr>".format(tmp_td)
+    
+    html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
+
+    p = Path('./pages') / directory / 'index.html'
     p.write_text(html)

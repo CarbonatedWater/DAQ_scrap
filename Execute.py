@@ -135,7 +135,7 @@ if __name__ == "__main__":
         program_img_id = json.load(f)
     for program in program_img_id.items():
         program_data = updater.get_program_info(program[0])
-        Upload.program_detail_html(program_data, program[1])
+        Upload.air_detail_html(program_data, program[1])
         print("===== {} air page is created!".format(program[0]))
 
     updater.cur.close()
