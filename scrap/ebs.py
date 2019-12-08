@@ -38,6 +38,9 @@ def scrap(prog_name, url, original_air_date, week):
         preview_mov = content.select_one('video')['src']
         preview_img = ''
         cont_text_tmp = [x.text for x in content.select('div') if (x.attrs == {}) and (x.text != '')]
+        if len(cont_text_tmp) < 1:
+            # 추출 실패 시 조건 완화해서 재실행
+            cont_text_tmp = [x.text for x in content.select('div') if x.text != '']
         cont_text_tmp.extend([x.text for x in content.select('p') if x.text != ''])
         description = '\n'.join(cont_text_tmp)
         air_date_tmp = ''
