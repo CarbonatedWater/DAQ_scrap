@@ -132,7 +132,7 @@ def scrap(prog_name, url, original_air_date, week):
             results.append({
                 'air_date': air_dates[i], 
                 'air_num': air_num, 
-                'title': '{} - {}'.format(title, sub_titles[i]), 
+                'title': '{} - {}'.format(title, sub_titles[i]).replace('"', "'"), 
                 'preview_img': preview_img, 
                 'preview_mov': preview_mov, 
                 'description': descriptions[i].replace('"', "'")

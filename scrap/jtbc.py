@@ -53,7 +53,7 @@ def scrap(prog_name, url, original_air_date, week):
     result = {
         'air_date': air_date, 
         'air_num': air_num, 
-        'title': title, 
+        'title': title.replace('"', "'"), 
         'preview_img': preview_img, 
         'preview_mov': preview_mov, 
         'description': description.replace('"', "'")

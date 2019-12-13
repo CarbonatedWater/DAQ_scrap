@@ -18,7 +18,7 @@ UPDATE contents
 SET 
 air_date = '{}', 
 air_num = {},
-title =  '{}', 
+title =  "{}", 
 preview_img = '{}', 
 preview_mov = '{}', 
 description = "{}" 
