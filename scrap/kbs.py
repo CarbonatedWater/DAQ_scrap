@@ -33,12 +33,14 @@ PARAM_B = {
     'page_size': 1
 }
 
+BBS_URL = 'http://pbbsapi.kbs.co.kr/board/v1/list'
 BBS_ID = {
     '추적 60분': 'T2000-0088-04-907289', 
     'KBS 스페셜': 'T2016-0065-04-622234', 
     '제보자들': 'T2016-0629-04-741959', 
     '특파원 보고 세계는 지금': 'T2016-0337-04-12370', 
-    '세상의 모든 다큐': 'T2011-0923-04-569614'
+    '세상의 모든 다큐': 'T2011-0923-04-569614', 
+    '다큐 인사이트': 'T2019-0296-04-850025'
 }
 
 BTV_CON_ID = {
@@ -65,13 +67,13 @@ def scrap(prog_name, url, original_air_date, week):
         preview_mov = REFER + content_info['NEWS_VOD_URL'].replace('|N|Y|N|', '')
         description = ''
         regdate_tmp = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", content_info['NEWS_REG_DATE']).group()
-    elif prog_name in ['추적 60분', 'KBS 스페셜', '제보자들', '세상의 모든 다큐', '특파원 보고 세계는 지금']:
+    else:
         PARAM_B['bbs_id'] = BBS_ID[prog_name]
-        resp = s.get(url, params=PARAM_B)
+        resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
         #print(resp.text)
         content_info = json.loads(resp.text)['data'][0]
         title = content_info['title'].split('/')[0].strip()
-        air_num = content_info['id']
+        air_num = content_info['post_no']
         preview_img_tmp = content_info['post_cont_image']
         if preview_img_tmp is None:
             preview_img = ''
@@ -80,14 +82,14 @@ def scrap(prog_name, url, original_air_date, week):
         preview_mov = ''
         description = content_info['description']
         # 디스크립션 수정
-        if prog_name ==  '제보자들':
+        if prog_name == '제보자들':
             # air number, title 수정
             air_num = title.replace("회", "")
             title = ''
             if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
-        elif prog_name ==  '특파원 보고 세계는 지금':
+        elif prog_name == '특파원 보고 세계는 지금':
             if re.compile(r"^.+내용■ ").search(content_info['description']) is not None:
                 front_padding = re.compile(r"^(.+내용■ )").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")

@@ -12,6 +12,12 @@ from scrap import utils
 
 REFER = 'https://programs.sbs.co.kr/'
 
+API_URL = {
+    'SBS 스페셜': 'sbsspecial', 
+    '그것이 알고싶다': 'unansweredquestions', 
+    '궁금한 이야기 Y': 'cube'
+}
+
 BTV_CON_ID = {
     'SBS 스페셜': '{A4FA8AF7-6AC3-11E8-BC2D-BD92772229B5}', 
     '그것이 알고싶다': '{C5AEC9FC-E1FB-493A-BF5E-69902B04F38A}', 
@@ -21,7 +27,7 @@ BTV_CON_ID = {
 
 def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
-    resp = s.get(url)
+    resp = s.get("https://static.apis.sbs.co.kr/program-api/2.0/main/" + API_URL[prog_name])
     #soup = BeautifulSoup(resp.text, 'lxml')
     content = json.loads(resp.text)
     if prog_name in ["궁금한 이야기 Y", "그것이 알고싶다"]:

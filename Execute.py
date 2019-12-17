@@ -46,11 +46,11 @@ class Updater:
         if ch != 'all':
             self.cur.execute("SELECT id, title, ch, url FROM programs WHERE ch = '{}';".format(ch))
         else:
-            self.cur.execute("SELECT id, title, ch, url FROM programs;")
+            self.cur.execute("SELECT id, title, ch, url, on_air FROM programs;")
         lst_programs = self.cur.fetchall()
 
         for prog in lst_programs:
-            if prog[1] == "추적 60분": # 방영 종료
+            if prog[4] == 0: # 방영 종료
                 continue
             time.sleep(random.randint(3, 8))
             print('===== prog: {}'.format(prog))

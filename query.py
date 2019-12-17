@@ -26,3 +26,11 @@ WHERE id = {} AND air_num = {} AND air_date = '{}';
 """
 
 get_program_air_time = "SELECT on_time FROM programs ORDER BY id;"
+
+"""
+새로운 프로그램 정보 등록
+INSERT INTO programs 
+(id, title, ch, on_day, on_time, cycle, description, on_air, url) 
+VALUES 
+(19, '다큐 인사이트', 'KBS', '목', '오후 10시', 'week', '소재와 형식을 뛰어넘은 다큐멘터리의 즐거운 뒤집기 <다큐 인사이트> 프로젝트', 1, 'http://program.kbs.co.kr/1tv/culture/docuinsight/pc/index.html');
+"""
