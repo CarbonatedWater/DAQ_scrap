@@ -40,7 +40,8 @@ BBS_ID = {
     '제보자들': 'T2016-0629-04-741959', 
     '특파원 보고 세계는 지금': 'T2016-0337-04-12370', 
     '세상의 모든 다큐': 'T2011-0923-04-569614', 
-    '다큐 인사이트': 'T2019-0296-04-850025'
+    '다큐 인사이트': 'T2019-0296-04-850025', 
+    '시사기획 창': 'T2011-1097-04-968945'
 }
 
 BTV_CON_ID = {
@@ -59,6 +60,7 @@ def next_weekday(d, weekday):
 def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
     if prog_name == '시사기획 창':
+        url = 'http://news.kbs.co.kr/news/getNewsPage.do'
         resp = s.post(url, data=PARAM_A)
         content_info = json.loads(resp.text)['page_list'][0]
         title =  content_info['NEWS_TITLE'].split(' : ')[1]

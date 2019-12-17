@@ -44,9 +44,9 @@ class Updater:
         new_content_cnt = 0
         # 1. 스크랩할 프로그램 리스트 추출
         if ch != 'all':
-            self.cur.execute("SELECT id, title, ch, url FROM programs WHERE ch = '{}';".format(ch))
+            self.cur.execute("{} WHERE ch = '{}';".format(query.get_program_info, ch))
         else:
-            self.cur.execute("SELECT id, title, ch, url, on_air FROM programs;")
+            self.cur.execute(query.get_program_info + ";")
         lst_programs = self.cur.fetchall()
 
         for prog in lst_programs:

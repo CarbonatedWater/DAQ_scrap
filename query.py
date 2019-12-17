@@ -1,4 +1,6 @@
 
+get_program_info = "SELECT id, title, ch, url, on_air FROM programs"
+
 get_thisweek_air_info = """
 SELECT * FROM contents WHERE air_date >= '{}' AND air_date <= '{}' ORDER BY air_date;
 """
