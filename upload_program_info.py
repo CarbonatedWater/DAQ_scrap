@@ -14,6 +14,8 @@ def update_program_base_info() -> list:
     cur.execute("SELECT * FROM programs;")
     tbl = cur.fetchall()
     cur.close()
+    with open("./program_img_id.json", 'r') as f:
+        image_urls = json.load(f)
 
     # tuple to list
     programs = []
@@ -25,5 +27,7 @@ def update_program_base_info() -> list:
         print(program[6])
         program[6] = program[6].replace('\\n', '\n')
         print(program[6])
+        # image Url 추가
+        program.append(image_urls[program[1]])
 
     return programs
