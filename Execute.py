@@ -129,13 +129,13 @@ if __name__ == "__main__":
         # 방영시간 정보 추출
         air_times = updater.get_program_air_time()
         print(air_times)
-        Upload.thisweek_html(new_contents, air_times, 'week')
+        Upload.air_html(new_contents, air_times, 'week')
     # 3. 프로그램별 방영리스트 페이지 생성
     with open('./program_img_id.json', 'r') as f:
         program_img_id = json.load(f)
     for program in program_img_id.items():
         program_data = updater.get_program_info(program[0])
-        Upload.air_detail_html(program_data, program[1])
+        Upload.air_html(program_data, air_times, program[1])
         print("===== {} air page is created!".format(program[0]))
 
     updater.cur.close()

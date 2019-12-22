@@ -22,7 +22,7 @@ HTML_REAR = '''
 PATH_GIT_REPO = r'path\to\your\project\folder\.git'
 
 
-def thisweek_html(contents, air_times, directory):
+def air_html(contents, air_times, directory):
     inner = ''
 
     for content in contents:
@@ -41,22 +41,10 @@ def thisweek_html(contents, air_times, directory):
     
     html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
 
-    p = Path('./pages') / directory / 'index.html'
-    p.write_text(html)
-
-
-def air_detail_html(contents, directory):
-    inner = ''
-
-    for content in contents:
-        tmp_td = ''
-        for col in content:
-            tmp_td += "<td>{}</td>".format(col)
-        inner += "<tr>{}</tr>".format(tmp_td)
-    
-    html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
-
-    p = Path('./pages/airlist') / directory / 'index.html'
+    if directory == 'week':
+        p = Path('./pages') / directory / 'index.html'
+    else:
+        p = Path('./pages/airlist') / directory / 'index.html'
     p.write_text(html)
 
 
