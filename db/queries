@@ -5,8 +5,8 @@ WHERE id NOT IN (13, 14, 15, 16, 18);
 
 
 UPDATE programs 
-SET on_time = '오후 10시 5분' 
-WHERE id = 18;
+SET on_air =0
+WHERE id = 12;
 
 
 SELECT * FROM contents
@@ -21,4 +21,4 @@ WHERE id = 10 AND air_num = 4335925;
 INSERT INTO programs 
 (id, title, ch, on_day, on_time, cycle, description, on_air, url) 
 VALUES 
-(19, '다큐 인사이트', 'KBS', '목', '오후 10시', 'week', '소재와 형식을 뛰어넘은 다큐멘터리의 즐거운 뒤집기 <다큐 인사이트> 프로젝트', 1, 'http://program.kbs.co.kr/1tv/culture/docuinsight/pc/index.html');
+(20, '다큐세상', 'KBS', '금,토', '오후 10시40분', 'week', '우리 사회의 곳곳에는 우리가 미처 인식하지 못하고 있는 수많은 현상과 삶의 모습들이 있다. 일반 대중의 삶에서부터 다양한 사회적인 이슈에 이르기 까지 폭넓은 스펙트럼의 시각으로 우리의 삶을 들여다본다.', 1, 'http://program.kbs.co.kr/1tv/culture/docusesang/pc/');

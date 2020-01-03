@@ -41,7 +41,8 @@ BBS_ID = {
     '특파원 보고 세계는 지금': 'T2016-0337-04-12370', 
     '세상의 모든 다큐': 'T2011-0923-04-569614', 
     '다큐 인사이트': 'T2019-0296-04-850025', 
-    '시사기획 창': 'T2011-1097-04-968945'
+    '시사기획 창': 'T2011-1097-04-968945', 
+    '다큐세상': 'T2018-0304-04-989186'
 }
 
 BTV_CON_ID = {
@@ -104,9 +105,15 @@ def scrap(prog_name, url, original_air_date, week):
         else:
             regdate_tmp = title.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
             regdate_tmp = ''.join(regdate_tmp)
-    
+    # 방영일 파싱
     regdate = parse(regdate_tmp).date()
-    air_date = str(next_weekday(regdate, week.index(original_air_date[0])))
+    if prog_name == '다큐세상':
+        air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', description).group()
+        air_date = air_date.replace(' ', '').replace('년', '-').replace('월', '-').replace('일', '')
+        air_date = str(parse(air_date).date())
+    else:
+        air_date = str(next_weekday(regdate, week.index(original_air_date[0])))
+
     if prog_name == '시사기획 창':
         # sk BTV 정보 보완
         btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])

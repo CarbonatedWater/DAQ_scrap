@@ -49,7 +49,6 @@ def air_html(contents, air_times, directory):
 
 
 def program_detail_html(contents, directory):
-    # directory 가 update 일 경우 앱에 프로그램의 새로운 정보를 업데이트함
     inner = ''
 
     for content in contents:

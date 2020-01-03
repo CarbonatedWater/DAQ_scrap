@@ -46,7 +46,11 @@ def scrap(prog_name, url, original_air_date, week):
         air_date_tmp = ''
         for text in cont_text_tmp:
             if re.search("EBS", text):
-                air_date_tmp = re.search(r"[0-9]{4}년 ?[0-9]{1,2}월 ?[0-9]{1,2}일", text).group()
+                try:
+                    air_date_tmp = re.search(r"[0-9]{4}년 ?[0-9]{1,2}월 ?[0-9]{1,2}일", text).group()
+                except:
+                    print("===== sentence: %s" % text)
+                    pass
         air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())
         # sk BTV 정보 보완
         btv_info = utils.get_btv_info(btv_con_id[prog_name])
@@ -97,7 +101,7 @@ def scrap(prog_name, url, original_air_date, week):
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
-        preview_img = soup.select_one('div.view_con > div.gallery img')['src']
+        preview_img = soup.select_one('div.view_con > div.gallery > div.gallery_img > p > img')['src']
         try:
             preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
         except KeyError:

@@ -31,3 +31,14 @@ def update_program_base_info() -> list:
         program.append(image_urls[program[1]])
 
     return programs
+
+
+def add_program_img(program_name: str, img_name: str):
+    with open("./program_img_id.json", 'r') as f:
+        image_urls = json.load(f)
+
+    image_urls[program_name] = img_name
+    print(image_urls)
+
+    with open("./program_img_id.json", 'w') as f:
+        json.dump(image_urls, f)
