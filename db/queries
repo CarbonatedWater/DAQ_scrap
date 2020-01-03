@@ -1,0 +1,24 @@
+SELECT * FROM programs;
+UPDATE programs
+SET air_title = 1
+WHERE id NOT IN (13, 14, 15, 16, 18);
+
+
+UPDATE programs 
+SET on_time = '오후 10시 5분' 
+WHERE id = 18;
+
+
+SELECT * FROM contents
+WHERE id = 10 
+ORDER BY air_date DESC;
+
+UPDATE contents  
+SET air_date = '2019-12-07'
+WHERE id = 10 AND air_num = 4335925;
+
+-- 프로그램 추가 쿼리
+INSERT INTO programs 
+(id, title, ch, on_day, on_time, cycle, description, on_air, url) 
+VALUES 
+(19, '다큐 인사이트', 'KBS', '목', '오후 10시', 'week', '소재와 형식을 뛰어넘은 다큐멘터리의 즐거운 뒤집기 <다큐 인사이트> 프로젝트', 1, 'http://program.kbs.co.kr/1tv/culture/docuinsight/pc/index.html');

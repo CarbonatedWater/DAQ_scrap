@@ -49,6 +49,7 @@ def air_html(contents, air_times, directory):
 
 
 def program_detail_html(contents, directory):
+    # directory 가 update 일 경우 앱에 프로그램의 새로운 정보를 업데이트함
     inner = ''
 
     for content in contents:
@@ -60,4 +61,13 @@ def program_detail_html(contents, directory):
     html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
 
     p = Path('./pages') / directory / 'index.html'
+    p.write_text(html)
+
+
+def update_noti_html(version: int):
+    # change_type: "new", "change"
+    inner = '<h1>{}</h1>'.format(version)
+    html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
+
+    p = Path('./pages') / 'update' / 'index.html'
     p.write_text(html)
