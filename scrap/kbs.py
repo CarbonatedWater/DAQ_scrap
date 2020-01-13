@@ -106,9 +106,12 @@ def scrap(prog_name, url, original_air_date, week):
             regdate_tmp = title.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
             regdate_tmp = ''.join(regdate_tmp)
     # 방영일 파싱
-    regdate = parse(regdate_tmp).date()
+    try:
+        regdate = parse(regdate_tmp).date()
+    except ValueError:
+        pass
     if prog_name == '다큐세상':
-        air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', description).group()
+        air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title'].split('/')[1]).group()
         air_date = air_date.replace(' ', '').replace('년', '-').replace('월', '-').replace('일', '')
         air_date = str(parse(air_date).date())
     else:
