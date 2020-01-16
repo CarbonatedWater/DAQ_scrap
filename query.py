@@ -4,7 +4,7 @@ get_program_info = "SELECT id, title, ch, url, on_air FROM programs"
 get_thisweek_air_info = """
 SELECT * FROM contents WHERE air_date >= '{}' AND air_date <= '{}' ORDER BY air_date;
 """
-get_program_air_num = "SELECT air_num FROM contents WHERE id = {} ORDER BY air_num DESC LIMIT 1;"
+get_program_air_num_date = "SELECT air_num, air_date FROM contents WHERE id = {} ORDER BY air_num DESC LIMIT 1;"
 
 get_program_air_info_10 = """
     SELECT * FROM contents 

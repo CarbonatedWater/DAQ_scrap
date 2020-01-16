@@ -112,8 +112,10 @@ def scrap(prog_name, url, original_air_date, week):
         pass
     if prog_name == '다큐세상':
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title'].split('/')[1]).group()
-        air_date = air_date.replace(' ', '').replace('년', '-').replace('월', '-').replace('일', '')
-        air_date = str(parse(air_date).date())
+        air_date = utils.trans_date(air_date)
+    elif prog_name == '특파원 보고 세계는 지금':
+        air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title']).group()
+        air_date = utils.trans_date(air_date)
     else:
         air_date = str(next_weekday(regdate, week.index(original_air_date[0])))
 

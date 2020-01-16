@@ -1,6 +1,7 @@
 import requests
 import re
 import json
+from dateutil.parser import parse
 
 
 REFER_B = 'http://mapp.btvplus.co.kr/recommend.do'
@@ -29,3 +30,9 @@ def get_btv_info(con_id):
     except:
         print('===== json error')
         return None
+
+
+# 제목에서 방영일 생성하기
+def trans_date(date_string):
+    air_date = date_string.replace(' ', '').replace('년', '-').replace('월', '-').replace('일', '')
+    return str(parse(air_date).date())
