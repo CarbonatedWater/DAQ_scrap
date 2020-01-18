@@ -61,7 +61,7 @@ def scrap(prog_name, url, original_air_date, week):
                 pass
             if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
                 description = btv_info['content']['c_desc']
-                preview_img = btv_info['content']['hd_series'][0]['thumb_image'].\
+                preview_img = btv_info['content']['hd_series'][-1]['thumb_image'].\
                 replace('195x110', '390x220')
 
         result = {
