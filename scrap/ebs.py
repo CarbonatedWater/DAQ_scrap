@@ -14,7 +14,8 @@ from scrap import utils
 REFER = 'http://home.ebs.co.kr/'
 
 btv_con_id = {
-    '다큐 시선': '{617E3A57-A40A-11E7-A50E-376259EF559C}'
+    '다큐 시선': '{617E3A57-A40A-11E7-A50E-376259EF559C}', 
+    '건축탐구 집': '{53FEA124-AA1A-460E-A445-2A88A7F2993D}'
 }
 
 
@@ -25,11 +26,15 @@ def scrap(prog_name, url, original_air_date, week):
     new_item = soup.select('tbody#itemList > tr')[0]
     title = new_item.select_one('td.subject span').text
     sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
-    if prog_name == '다큐 시선':
-        air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
-        air_num = air_num_tmp.group(1)
-        date_tmp = re.search(r"\([0-9]{1,2}\/[0-9]{1,2}\)", title)
-        title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
+    if prog_name != '다큐프라임':
+        if prog_name == '다큐 시선':
+            air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
+            air_num = air_num_tmp.group(1)
+            date_tmp = re.search(r"\([0-9]{1,2}\/[0-9]{1,2}\)", title)
+            title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
+        elif prog_name == '건축탐구 집':
+            air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
+            title = title.replace("건축탐구 집 시즌2 ", "").replace("<", "").replace(">", "").strip()
         time.sleep(3)
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
@@ -75,7 +80,7 @@ def scrap(prog_name, url, original_air_date, week):
 
         return [result]
         
-    elif prog_name == '다큐프라임':
+    else:
         title = "<%s>" % title
         air_num = new_item.select_one('td').text
         lst_air_date = (new_item.select('td')[2].text.strip()).split(' ~ ')
