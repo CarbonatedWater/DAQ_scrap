@@ -2,8 +2,10 @@
 웹페이지 생성 및 github 업로드
 """
 
+import os
 from pathlib import Path
 from datetime import datetime, timedelta
+from upload_program_info import *
 
 
 HTML_FRONT = '''
@@ -70,3 +72,15 @@ def update_noti_html(version: int):
 
     p = Path('./pages') / 'update' / 'index.html'
     p.write_text(html)
+
+
+def setup_update_program(prog_name: str, img_name: str):
+    # 1. 이미지파일명 json 만들기
+    add_program_img(prog_name, img_name)
+    # 2. 방영정보 폴더 만들기
+    air_dir = os.path.join('./pages/airlist', img_name)
+    if not os.path.exists(air_dir):
+        os.mkdir(air_dir)
+    # 3. 프로그램 정보 페이지 업데이트
+    cont = update_program_base_info()
+    program_detail_html(cont, 'programs')
