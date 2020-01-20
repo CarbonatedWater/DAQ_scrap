@@ -2,6 +2,7 @@ import requests
 import re
 import json
 from dateutil.parser import parse
+from datetime import datetime, timedelta
 
 
 REFER_B = 'http://mapp.btvplus.co.kr/recommend.do'
@@ -36,3 +37,11 @@ def get_btv_info(con_id):
 def trans_date(date_string):
     air_date = date_string.replace(' ', '').replace('년', '-').replace('월', '-').replace('일', '')
     return str(parse(air_date).date())
+
+
+# 함수: 다음 요일 찾기
+def next_weekday(d: datetime.date, weekday: int) -> datetime.date:
+    days_ahead = weekday - d.weekday()
+    if days_ahead <= 0: # Target day already happened this week
+        days_ahead += 7
+    return d + timedelta(days_ahead)

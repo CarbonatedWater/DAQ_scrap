@@ -42,7 +42,8 @@ BBS_ID = {
     '세상의 모든 다큐': 'T2011-0923-04-569614', 
     '다큐 인사이트': 'T2019-0296-04-850025', 
     '시사기획 창': 'T2011-1097-04-968945', 
-    '다큐세상': 'T2018-0304-04-989186'
+    '다큐세상': 'T2018-0304-04-989186', 
+    '생로병사의 비밀': 'T2002-0429-04-185153'
 }
 
 BTV_CON_ID = {
@@ -50,12 +51,17 @@ BTV_CON_ID = {
     '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}'
 }
 
-# 함수: 다음 요일 찾기
-def next_weekday(d, weekday):
-    days_ahead = weekday - d.weekday()
-    if days_ahead <= 0: # Target day already happened this week
-        days_ahead += 7
-    return d + timedelta(days_ahead)
+
+# BTV 정보로 방영정보 업데이트
+def update_from_btv(prog_name: str, air_date: str):
+    btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
+    if btv_info:
+        try:
+            air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+        except:
+            pass
+        if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
+            return btv_info['content']['c_desc']
 
 
 def scrap(prog_name, url, original_air_date, week):
@@ -75,8 +81,8 @@ def scrap(prog_name, url, original_air_date, week):
         resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
         #print(resp.text)
         content_info = json.loads(resp.text)['data'][0]
-        title = content_info['title'].split('/')[0].strip()
-        air_num = content_info['post_no']
+        
+        # preview image, description 링크 저장
         preview_img_tmp = content_info['post_cont_image']
         if preview_img_tmp is None:
             preview_img = ''
@@ -84,6 +90,16 @@ def scrap(prog_name, url, original_air_date, week):
             preview_img = json.loads(preview_img_tmp)[0]
         preview_mov = ''
         description = content_info['description']
+
+        # 타이틀, 방영회차 수정
+        if prog_name == '생로병사의 비밀':
+            title_info = re.compile(r'^[0-9]([^;])*').match(description).group()
+            air_num = re.match(r'([0-9]{3,4})회', title_info).group(1)
+            title = re.search(r'\[(.*)\]', title_info).group(1)
+        else:
+            title = content_info['title'].split('/')[0].strip()
+            air_num = content_info['post_no']
+     
         # 디스크립션 수정
         if prog_name == '제보자들':
             # air number, title 수정
@@ -99,12 +115,16 @@ def scrap(prog_name, url, original_air_date, week):
             if re.compile(r"^.+회■ ").search(content_info['description']) is not None:
                 front_padding = re.compile(r"^(.+회■ )").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
+        elif prog_name == '생로병사의 비밀':
+            description = description.replace(title_info+";", "")
+        
         # 등록일 처리
-        if prog_name != '세상의 모든 다큐':
-            regdate_tmp = content_info['rdatetime'].split()[0]
-        else:
+        if prog_name == '세상의 모든 다큐':
             regdate_tmp = title.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
             regdate_tmp = ''.join(regdate_tmp)
+        else:
+            regdate_tmp = content_info['rdatetime'].split()[0]
+    
     # 방영일 파싱
     try:
         regdate = parse(regdate_tmp).date()
@@ -113,22 +133,15 @@ def scrap(prog_name, url, original_air_date, week):
     if prog_name == '다큐세상':
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title'].split('/')[1]).group()
         air_date = utils.trans_date(air_date)
-    elif prog_name == '특파원 보고 세계는 지금':
+    elif prog_name in ['특파원 보고 세계는 지금', '생로병사의 비밀']:
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title']).group()
         air_date = utils.trans_date(air_date)
     else:
-        air_date = str(next_weekday(regdate, week.index(original_air_date[0])))
+        air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
 
-    if prog_name == '시사기획 창':
-        # sk BTV 정보 보완
-        btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
-        if btv_info:
-            try:
-                air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
-            except:
-                pass
-            if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
-                description = btv_info['content']['c_desc']
+    # sk BTV 정보 보완
+    if prog_name in ['시사기획 창']:
+        description = update_from_btv(prog_name, air_date)
     
     result = {
         'air_date': air_date, 

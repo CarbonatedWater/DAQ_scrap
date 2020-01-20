@@ -15,7 +15,8 @@ REFER = 'http://home.ebs.co.kr/'
 
 btv_con_id = {
     '다큐 시선': '{617E3A57-A40A-11E7-A50E-376259EF559C}', 
-    '건축탐구 집': '{53FEA124-AA1A-460E-A445-2A88A7F2993D}'
+    '건축탐구 집': '{53FEA124-AA1A-460E-A445-2A88A7F2993D}', 
+    '명의': '{57B29139-4752-11E7-B550-E7E06F367DD3}'
 }
 
 
@@ -35,6 +36,10 @@ def scrap(prog_name, url, original_air_date, week):
         elif prog_name == '건축탐구 집':
             air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
             title = title.replace("건축탐구 집 시즌2 ", "").replace("<", "").replace(">", "").strip()
+        elif prog_name == "명의":
+            air_num_tmp = re.search(r"제 ([0-9]{3})회", title).group()
+            air_num = re.search(r"제 ([0-9]{3})회", title).group(1)
+            title = title.replace(air_num_tmp, "").strip()
         time.sleep(3)
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
@@ -47,6 +52,7 @@ def scrap(prog_name, url, original_air_date, week):
             # 추출 실패 시 조건 완화해서 재실행
             cont_text_tmp = [x.text for x in content.select('div') if x.text != '']
         cont_text_tmp.extend([x.text for x in content.select('p') if x.text != ''])
+        cont_text_tmp = [x.strip() for x in cont_text_tmp if x not in ['끝.', '\n\n\n\n']]
         description = '\n'.join(cont_text_tmp)
         air_date_tmp = ''
         for text in cont_text_tmp:
@@ -56,7 +62,12 @@ def scrap(prog_name, url, original_air_date, week):
                 except:
                     print("===== sentence: %s" % text)
                     pass
-        air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())
+        if air_num_tmp == '':
+            regdate = soup.select_one('#contents > div.listContents > div > form:nth-child(2) > div.view_head > dl > dd:nth-child(4)').text
+            regdate = parse(regdate[:-6]).date()
+            air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
+        else:
+            air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())
         # sk BTV 정보 보완
         btv_info = utils.get_btv_info(btv_con_id[prog_name])
         if btv_info:
