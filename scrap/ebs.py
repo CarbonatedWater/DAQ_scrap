@@ -62,9 +62,9 @@ def scrap(prog_name, url, original_air_date, week):
                 except:
                     print("===== sentence: %s" % text)
                     pass
-        if air_num_tmp == '':
-            regdate = soup.select_one('#contents > div.listContents > div > form:nth-child(2) > div.view_head > dl > dd:nth-child(4)').text
-            regdate = parse(regdate[:-6]).date()
+        if air_date_tmp == '':
+            regdate = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", new_item.text).group()
+            regdate = parse(regdate).date()
             air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
         else:
             air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())

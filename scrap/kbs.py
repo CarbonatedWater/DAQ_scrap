@@ -93,9 +93,12 @@ def scrap(prog_name, url, original_air_date, week):
 
         # 타이틀, 방영회차 수정
         if prog_name == '생로병사의 비밀':
-            title_info = re.compile(r'^[0-9]([^;])*').match(description).group()
+            title_info = re.compile(r'^[0-9][^■]*■').match(description).group()
+            air_num_tmp = re.match(r'([0-9]{3,4})회', title_info).group()
             air_num = re.match(r'([0-9]{3,4})회', title_info).group(1)
-            title = re.search(r'\[(.*)\]', title_info).group(1)
+            title = title_info.replace(air_num_tmp, "").replace("■", "").replace("&lsqb;", "")\
+                .replace("&rsqb;", "").replace("&lt;", "").replace("&gt;", "")\
+                    .replace("&nbsp;", "")
         else:
             title = content_info['title'].split('/')[0].strip()
             air_num = content_info['post_no']
@@ -141,7 +144,9 @@ def scrap(prog_name, url, original_air_date, week):
 
     # sk BTV 정보 보완
     if prog_name in ['시사기획 창']:
-        description = update_from_btv(prog_name, air_date)
+        description_tmp = update_from_btv(prog_name, air_date)
+        if description_tmp is not None:
+            description = description_tmp
     
     result = {
         'air_date': air_date, 
