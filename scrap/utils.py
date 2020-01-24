@@ -55,5 +55,6 @@ def html_escape(text: str) -> str:
 
 
 # html encoding
-def title_encoding(word: str) -> str:
-    return quote_plus(word)
+def naver_search(session: requests.Session, word: str) -> requests.Response:
+    url = 'https://search.naver.com/search.naver?query=%s' % quote_plus(word)
+    return session.get(url)

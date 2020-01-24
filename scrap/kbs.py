@@ -79,8 +79,7 @@ def scrap(prog_name, url, original_air_date, week):
         description = ''
         regdate_tmp = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", content_info['NEWS_REG_DATE']).group()
     elif prog_name in ['다큐멘터리 3일', '생로병사의 비밀']:
-        url = 'https://search.naver.com/search.naver?query=' + utils.title_encoding(prog_name)
-        resp = s.get(url)
+        resp = utils.naver_search(s, prog_name)
         soup = BeautifulSoup(resp.text, "lxml")
         content_info = soup.select_one('div.turn_info_wrap')
         title = content_info.select_one('strong.tlt').text
