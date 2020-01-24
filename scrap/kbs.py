@@ -8,6 +8,7 @@ import json
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 import time
+from bs4 import BeautifulSoup
 from scrap import utils
 
 
@@ -43,7 +44,8 @@ BBS_ID = {
     '다큐 인사이트': 'T2019-0296-04-850025', 
     '시사기획 창': 'T2011-1097-04-968945', 
     '다큐세상': 'T2018-0304-04-989186', 
-    '생로병사의 비밀': 'T2002-0429-04-185153'
+    '생로병사의 비밀': 'T2002-0429-04-185153', 
+    '다큐멘터리 3일': 'T2007-0188-04-895363'
 }
 
 BTV_CON_ID = {
@@ -76,6 +78,32 @@ def scrap(prog_name, url, original_air_date, week):
         preview_mov = REFER + content_info['NEWS_VOD_URL'].replace('|N|Y|N|', '')
         description = ''
         regdate_tmp = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", content_info['NEWS_REG_DATE']).group()
+    elif prog_name in ['다큐멘터리 3일', '생로병사의 비밀']:
+        url = 'https://search.naver.com/search.naver?query=' + utils.title_encoding(prog_name)
+        resp = s.get(url)
+        soup = BeautifulSoup(resp.text, "lxml")
+        content_info = soup.select_one('div.turn_info_wrap')
+        title = content_info.select_one('strong.tlt').text
+        air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
+        air_date = re.search(r'\d{4}\.?\d{1,2}\.?\d{1,2}', content_info.select('dd')[1].text).group()
+        try:
+            preview_img = content_info.select_one('div.thumb > img')['src'].replace('quality=90', 'quality=100')\
+                .replace('265x150', '530x300')
+        except:
+            print('===== naver img None')
+            preview_img = ''
+        preview_mov = ''
+        description = content_info.select_one('p.episode_txt').text
+        if prog_name == '생로병사의 비밀':
+            PARAM_B['bbs_id'] = BBS_ID[prog_name]
+            resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
+            #print(resp.text)
+            content_info = json.loads(resp.text)['data'][0]    
+            preview_img_tmp = content_info['post_cont_image']
+            if preview_img_tmp is None:
+                preview_img = ''
+            else:    
+                preview_img = json.loads(preview_img_tmp)[0]
     else:
         PARAM_B['bbs_id'] = BBS_ID[prog_name]
         resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
@@ -92,16 +120,8 @@ def scrap(prog_name, url, original_air_date, week):
         description = content_info['description']
 
         # 타이틀, 방영회차 수정
-        if prog_name == '생로병사의 비밀':
-            title_info = re.compile(r'^[0-9][^■]*■').match(description).group()
-            air_num_tmp = re.match(r'([0-9]{3,4})회', title_info).group()
-            air_num = re.match(r'([0-9]{3,4})회', title_info).group(1)
-            title = title_info.replace(air_num_tmp, "").replace("■", "").replace("&lsqb;", "")\
-                .replace("&rsqb;", "").replace("&lt;", "").replace("&gt;", "")\
-                    .replace("&nbsp;", "")
-        else:
-            title = content_info['title'].split('/')[0].strip()
-            air_num = content_info['post_no']
+        title = content_info['title'].split('/')[0].strip()
+        air_num = content_info['post_no']
      
         # 디스크립션 수정
         if prog_name == '제보자들':
@@ -118,8 +138,8 @@ def scrap(prog_name, url, original_air_date, week):
             if re.compile(r"^.+회■ ").search(content_info['description']) is not None:
                 front_padding = re.compile(r"^(.+회■ )").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
-        elif prog_name == '생로병사의 비밀':
-            description = description.replace(title_info+";", "")
+        # description의 html 코드 수정
+        description = utils.html_escape(description)
         
         # 등록일 처리
         if prog_name == '세상의 모든 다큐':
@@ -131,12 +151,14 @@ def scrap(prog_name, url, original_air_date, week):
     # 방영일 파싱
     try:
         regdate = parse(regdate_tmp).date()
-    except ValueError:
+    except:
         pass
     if prog_name == '다큐세상':
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title'].split('/')[1]).group()
         air_date = utils.trans_date(air_date)
-    elif prog_name in ['특파원 보고 세계는 지금', '생로병사의 비밀']:
+    elif prog_name in ['다큐멘터리 3일', '생로병사의 비밀']:
+        air_date = utils.trans_date(air_date)
+    elif prog_name in ['특파원 보고 세계는 지금']:
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title']).group()
         air_date = utils.trans_date(air_date)
     else:

@@ -3,6 +3,7 @@ import re
 import json
 from dateutil.parser import parse
 from datetime import datetime, timedelta
+from urllib.parse import quote_plus
 
 
 REFER_B = 'http://mapp.btvplus.co.kr/recommend.do'
@@ -45,3 +46,14 @@ def next_weekday(d: datetime.date, weekday: int) -> datetime.date:
     if days_ahead <= 0: # Target day already happened this week
         days_ahead += 7
     return d + timedelta(days_ahead)
+
+
+# html escape 수정
+def html_escape(text: str) -> str:
+    return text.replace("&nbsp;", " ").replace("&lt;", "<").replace("&gt;", ">")\
+        .replace("&quot;", '"').replace("&amp;", "&")
+
+
+# html encoding
+def title_encoding(word: str) -> str:
+    return quote_plus(word)
