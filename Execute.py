@@ -68,7 +68,7 @@ class Updater:
             # 프로그램 회차 추출
             self.cur.execute(query.get_program_air_num_date.format(_id))
             tmp = self.cur.fetchone()
-            print("===== air No. & date: {}".format(tmp))
+            print("===== air No. & date: {} & result: {}".format(tmp, results))
             for result in results:
                 #print('===== new scraped result: {}'.format(result))
                 null_items = []
@@ -81,6 +81,7 @@ class Updater:
                 insert_columns = [col for col in list(result.keys()) if col not in null_items]
                 insert_values = ['%s' % result[x] if x != 'air_num' else result[x] for x in insert_columns]
                 if tmp is None or datetime.strptime(result['air_date'], '%Y-%m-%d') > datetime.strptime(tmp[1], '%Y-%m-%d'):
+                    print('===== new data!')
                     # 기존에 없던 정보는 insert로 추가    
                     insert_query = query.insert_new_air_info.format((", ").join(insert_columns), "?, " * (len(insert_values) - 1))
                     print(insert_query)
@@ -88,6 +89,7 @@ class Updater:
                     #print(final_insert_values)
                     self.cur.execute(insert_query, (final_insert_values))
                 elif int(result['air_num']) == tmp[0]:
+                    print('===== air num equals!')
                     # 기존에 있던 정보는 업데이트
                     update_query = query.update_new_air_info.format(
                         result['air_date'], result['air_num'], result['title'], 
@@ -97,6 +99,7 @@ class Updater:
                     print(update_query)
                     self.cur.execute(update_query)
                 else:
+                    print('===== pass')
                     pass
                 
                 self.conn.commit()

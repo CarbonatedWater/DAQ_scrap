@@ -35,7 +35,7 @@ def scrap(prog_name, url, original_air_date, week):
         show_advance = content['layers'][4]['items'][0]['medias'] # 미리보기 리스트
     elif prog_name == "SBS 스페셜":
         show_advance = content['layers'][4]['items'][2]['medias']
-
+    print(show_advance[0])
     try:
         regdate = parse(show_advance[0]['regdate']).date()
         day_diff = week.index(original_air_date[0]) - regdate.weekday()
@@ -56,8 +56,21 @@ def scrap(prog_name, url, original_air_date, week):
             air_date_check = re.search(r'\d{4}\.?\d{1,2}\.?\d{1,2}', content_info.select('dd')[1].text).group()
         except:
             pass
-        if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
+        print(air_date_check)
+        if air_date_check and air_date == str(parse(air_date_check).date()):
             air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
+        elif air_date_check and parse(air_date).date() < parse(air_date_check).date():
+            title = content_info.select_one('strong.tlt').text
+            air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
+            air_date = str(parse(air_date_check).date())
+            try:
+                preview_img = content_info.select_one('div.thumb > img')['src'].replace('quality=90', 'quality=100')\
+                    .replace('265x150', '530x300')
+            except:
+                print('===== naver img None')
+                preview_img = ''
+            preview_mov = ''
+            description = content_info.select_one('p.episode_txt').text
         else:
             air_num = ''
     else:
