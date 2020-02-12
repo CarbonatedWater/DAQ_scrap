@@ -157,6 +157,8 @@ def scrap(prog_name, url, original_air_date, week):
     if prog_name == '다큐세상':
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title'].split('/')[1]).group()
         air_date = utils.trans_date(air_date)
+    elif prog_name == '세상의 모든 다큐':
+        air_date = str(regdate)
     elif prog_name in ['다큐멘터리 3일', '생로병사의 비밀']:
         air_date = utils.trans_date(air_date)
     elif prog_name in ['특파원 보고 세계는 지금']:
