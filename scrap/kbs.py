@@ -45,12 +45,14 @@ BBS_ID = {
     '시사기획 창': 'T2011-1097-04-968945', 
     '다큐세상': 'T2018-0304-04-989186', 
     '생로병사의 비밀': 'T2002-0429-04-185153', 
-    '다큐멘터리 3일': 'T2007-0188-04-895363'
+    '다큐멘터리 3일': 'T2007-0188-04-895363', 
+    '시사 직격': 'T2019-0280-04-513653'
 }
 
 BTV_CON_ID = {
     '제보자들': '{C18F4D30-81E7-4187-B03C-CF81083D46E1}', 
-    '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}'
+    '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}', 
+    '시사 직격': '{620D0AE8-9DBE-4792-8AC4-903DC7F08FCD}'
 }
 
 
@@ -164,7 +166,7 @@ def scrap(prog_name, url, original_air_date, week):
         air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
 
     # sk BTV 정보 보완
-    if prog_name in ['시사기획 창']:
+    if prog_name in ['시사기획 창', '시사직격']:
         description_tmp = update_from_btv(prog_name, air_date)
         if description_tmp is not None:
             description = description_tmp
