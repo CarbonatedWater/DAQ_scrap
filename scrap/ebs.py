@@ -32,7 +32,10 @@ def scrap(prog_name, url, original_air_date, week):
             air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
             air_num = air_num_tmp.group(1)
             date_tmp = re.search(r"\([0-9]{1,2}\/[0-9]{1,2}\)", title)
-            title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
+            if date_tmp:
+                title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
+            else:
+                title = title.replace(air_num_tmp.group(0), "").strip()
         elif prog_name == '건축탐구 집':
             air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
             title = title.replace("건축탐구 집 시즌2 ", "").replace("<", "").replace(">", "").strip()
