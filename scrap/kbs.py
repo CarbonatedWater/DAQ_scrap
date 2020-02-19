@@ -172,6 +172,26 @@ def scrap(prog_name, url, original_air_date, week):
         description_tmp = update_from_btv(prog_name, air_date)
         if description_tmp is not None:
             description = description_tmp
+
+    # 네이버 정보 보완
+    if prog_name == '제보자들':
+        resp = utils.naver_search(s, prog_name)
+        soup = BeautifulSoup(resp.text, "lxml")
+        content_info = soup.select_one('div.turn_info_wrap')
+        try:
+            air_date_check = re.search(r'\d{4}\.?\d{1,2}\.?\d{1,2}', content_info.select('dd')[1].text).group()
+        except:
+            pass
+        print("===== air date check", air_date_check)
+        if air_date_check and air_date == str(parse(air_date_check).date()):
+            air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
+            description = content_info.select_one('p.episode_txt').text
+        elif air_date_check and parse(air_date).date() < parse(air_date_check).date():
+            air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
+            air_date = str(parse(air_date_check).date())
+            preview_mov = ''
+            description = content_info.select_one('p.episode_txt').text
+        
     
     result = {
         'air_date': air_date, 
