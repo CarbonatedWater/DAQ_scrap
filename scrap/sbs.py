@@ -65,7 +65,7 @@ def scrap(prog_name, url, original_air_date, week):
             air_date = str(parse(air_date_check).date())
             try:
                 preview_img = content_info.select_one('div.thumb > img')['src'].replace('quality=90', 'quality=100')\
-                    .replace('265x150', '530x300')
+                    .replace('265x150', '530x300').replace(';', '')
             except:
                 print('===== naver img None')
                 preview_img = ''
