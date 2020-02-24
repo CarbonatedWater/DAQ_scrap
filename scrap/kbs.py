@@ -50,9 +50,9 @@ BBS_ID = {
 }
 
 BTV_CON_ID = {
-    '제보자들': '{C18F4D30-81E7-4187-B03C-CF81083D46E1}', 
     '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}', 
-    '시사 직격': '{620D0AE8-9DBE-4792-8AC4-903DC7F08FCD}'
+    '시사 직격': '{620D0AE8-9DBE-4792-8AC4-903DC7F08FCD}', 
+    '다큐 인사이트': '{6ECA1F4E-5777-4A04-B4A0-AF8039A04539}'
 }
 
 
@@ -61,11 +61,12 @@ def update_from_btv(prog_name: str, air_date: str):
     btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
     if btv_info:
         try:
-            air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+            air_date = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
         except:
             pass
-        if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
-            return btv_info['content']['c_desc']
+        return btv_info['content']['c_desc']
+    else:
+        return None
 
 
 def scrap(prog_name, url, original_air_date, week):
@@ -164,14 +165,21 @@ def scrap(prog_name, url, original_air_date, week):
     elif prog_name in ['특파원 보고 세계는 지금']:
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title']).group()
         air_date = utils.trans_date(air_date)
+    elif prog_name == '다큐 인사이트':
+        try:
+            air_date = re.search(r'(\d{4}년 ?\d{1,2}월 ?\d{1,2}일) \(.\)', content_info['description']).group(1)
+            air_date = utils.trans_date(air_date)
+        except:
+            pass
     else:
         air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
 
     # sk BTV 정보 보완
-    if prog_name in ['시사기획 창', '시사직격']:
+    if prog_name in BTV_CON_ID.keys():
         description_tmp = update_from_btv(prog_name, air_date)
         if description_tmp is not None:
             description = description_tmp
+
 
     # 네이버 정보 보완
     if prog_name == '제보자들':
