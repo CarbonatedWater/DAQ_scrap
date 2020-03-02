@@ -61,10 +61,13 @@ def update_from_btv(prog_name: str, air_date: str):
     btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
     if btv_info:
         try:
-            air_date = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
+            air_date_btv = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
         except:
-            pass
-        return btv_info['content']['c_desc']
+            return None
+        if air_date_btv == air_date:
+            return btv_info['content']['c_desc']
+        else:
+            return None
     else:
         return None
 
