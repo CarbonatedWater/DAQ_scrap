@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from dateutil.parser import parse
 from bs4 import BeautifulSoup 
 from scrap import utils
+from urllib.parse import unquote
 
 
 REFER = 'https://programs.sbs.co.kr/'
@@ -66,6 +67,7 @@ def scrap(prog_name, url, original_air_date, week):
             try:
                 preview_img = content_info.select_one('div.thumb > img')['src'].replace('quality=90', 'quality=100')\
                     .replace('265x150', '530x300').replace(';', '')
+                preview_img = unquote(preview_img)
             except:
                 print('===== naver img None')
                 preview_img = ''
