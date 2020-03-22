@@ -65,6 +65,8 @@ class Updater:
             print("===== air date: {}".format(air_dates))
             # 방영정보 스크랩
             results = self.SCRAPER[ch](name, url, air_dates, self.WEEK)
+            if results is None:
+                continue
             # 프로그램 회차 추출
             self.cur.execute(query.get_program_air_num_date.format(_id))
             tmp = self.cur.fetchone()
