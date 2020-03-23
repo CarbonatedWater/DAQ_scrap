@@ -25,9 +25,10 @@ def scrap(prog_name, url, original_air_date, week):
     resp = s.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
     new_item = soup.select('tbody#itemList > tr')[0]
-    if new_item < 1:
+    try:
+        title = new_item.select_one('td.subject span').text
+    except:
         return None
-    title = new_item.select_one('td.subject span').text
     sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
     if prog_name != '다큐프라임':
         if prog_name == '다큐 시선':
