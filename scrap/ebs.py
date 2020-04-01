@@ -98,29 +98,7 @@ def scrap(prog_name, url, original_air_date, week):
         return [result]
         
     else:
-        title = "<%s>" % title
-        air_num = new_item.select_one('td').text
-        lst_air_date = (new_item.select('td')[2].text.strip()).split(' ~ ')
-        print(lst_air_date)
-        year = ''
-        air_dates = []
-        for date in lst_air_date:
-            year_tmp = re.compile(r"[0-9]{4}").search(date)
-            if year_tmp is not None:
-                year = year_tmp.group()
-            month = re.compile(r"([0-9]{2})월").search(date).group(1)
-            day = re.compile(r"([0-9]{2})일").search(date).group(1)
-            air_date = '-'.join([year, month, day])
-            air_dates.append(air_date)
-        # 마지막 방영날짜와 처음 방영날짜의 차이가 2일 경우 중간 날짜 추가
-        last_date = datetime.strptime(air_dates[-1], '%Y-%m-%d')
-        first_date = datetime.strptime(air_dates[0], '%Y-%m-%d')
-        if (last_date - first_date).days == 2:
-            middle_date = last_date - timedelta(days=1)
-            air_dates.insert(1, str(middle_date)[:10])
-        elif last_date == first_date:
-            air_dates.pop(1)
-        # 뉴 방송 페이지 접속
+        # 이미지 수집을 위한 EBS 방송 페이지 접속
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
         preview_img = soup.select_one('div.view_con > div.gallery > div.gallery_img > p > img')['src']
@@ -129,39 +107,27 @@ def scrap(prog_name, url, original_air_date, week):
         except KeyError:
             preview_mov = ''
         
-        ## 서브 타이틀명 추출
-        if (last_date - first_date).days == 0:
-            sub_titles = [soup.select_one('div.view_con > h3').text]
-        else:
-            sub_titles = [] # 서브타이틀 저장 리스트
-            sub_titles_tag = soup.select('div.b_date > div > font > div')
-            for sub_title_tag in sub_titles_tag:
-                matched = re.compile(r"\d+부\..*").search(sub_title_tag.text)
-                if matched:
-                    sub_titles.append(matched.group())
-        
+        ## 다큐프라임 정보 추출(다음 정보)
+        url_daum = 'https://search.daum.net/search?w=tv&q=EBS%20%EB%8B%A4%ED%81%90%20%ED%94%84%EB%9D%BC%EC%9E%84&irk=51278&irt=tv-program&DA=TVP'
+        resp = s.get(url_daum)
+        soup = BeautifulSoup(resp.text, 'lxml')
+        content_info = soup.select_one('ul.list_date > li.on')
+        air_num = soup.select_one('div.episode_cont strong.txt_episode').text.\
+            replace('회', '')
+        air_date_tmp = content_info['data-clip']
+        air_date = "{}-{}-{}".format(air_date_tmp[:4], air_date_tmp[4:6], air_date_tmp[6:])
+        sub_title = soup.select_one('div.episode_cont p > strong').text
         ## 회차설명 추출
-        descriptions = []
-        for desc in soup.select('div.summary > div.con_detail')[1:]:
-            desc_tmp = ''
-            if desc.select('div'):
-                div_texts = desc.select('div')[2:]
-            elif desc.select('p'):
-                div_texts = desc.select('p')[2:]
-            for div_text in div_texts:
-                desc_tmp += div_text.text
-            descriptions.append(desc_tmp)
+        description = soup.select_one('div.episode_cont p.episode_desc').text
         
         # DB 삽입 결과 생성
-        results = []
-        for i in range(len(air_dates)):
-            results.append({
-                'air_date': air_dates[i], 
-                'air_num': air_num, 
-                'title': '{} - {}'.format(title, sub_titles[i]).replace('"', "'"), 
-                'preview_img': preview_img, 
-                'preview_mov': preview_mov, 
-                'description': descriptions[i].replace('"', "'")
-            })
+        result = {
+            'air_date': air_date, 
+            'air_num': air_num, 
+            'title': title, 
+            'preview_img': preview_img, 
+            'preview_mov': preview_mov, 
+            'description': description.replace('"', "'")
+        }
 
-        return results
+        return [result]
