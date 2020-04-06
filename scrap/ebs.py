@@ -108,15 +108,16 @@ def scrap(prog_name, url, original_air_date, week):
             preview_mov = ''
         ## 다큐프라임 정보 추출(다음 정보)
         result_daum = utils.get_daum_info(prog_name)
-        
-        # DB 삽입 결과 생성
-        result = {
-            'air_date': result_daum['air_date'], 
-            'air_num': result_daum['air_num'], 
-            'title': result_daum['sub_title'], 
-            'preview_img': preview_img, 
-            'preview_mov': preview_mov, 
-            'description': result_daum['desc'].replace('"', "'")
-        }
-
-        return [result]
+        if result_daum:
+            # DB 삽입 결과 생성
+            result = {
+                'air_date': result_daum['air_date'], 
+                'air_num': result_daum['air_num'], 
+                'title': result_daum['sub_title'], 
+                'preview_img': preview_img, 
+                'preview_mov': preview_mov, 
+                'description': result_daum['desc'].replace('"', "'")
+            }
+            return [result]
+        else:
+            return None

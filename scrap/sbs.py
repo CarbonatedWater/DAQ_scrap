@@ -76,7 +76,10 @@ def scrap(prog_name, url, original_air_date, week):
         else:
             air_num = ''
     else:
-        air_num = re.search(r"([0-9]+)회", show_advance[0]['title']).group(1)
+        air_num_tmp = re.search(r"([0-9]+)회", show_advance[0]['title'])
+        if not(air_num_tmp):
+            return None
+        air_num = air_num_tmp.group(1)
         title = show_advance[0]['title'].replace("[{}회] ".format(air_num), "")
         preview_img = "https:" + show_advance[0]['thumb']['large']
         preview_mov = None
