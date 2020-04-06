@@ -1,12 +1,14 @@
 import requests
 import re
 import json
+from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from datetime import datetime, timedelta
 from urllib.parse import quote_plus
 
 
 REFER_B = 'http://mapp.btvplus.co.kr/recommend.do'
+REFER_D = 'http://www.daum.net'
 
 
 # 웹 세션 생성
@@ -58,3 +60,25 @@ def html_escape(text: str) -> str:
 def naver_search(session: requests.Session, word: str) -> requests.Response:
     url = 'https://search.naver.com/search.naver?query=%s' % quote_plus(word)
     return session.get(url)
+
+
+# 다음 프로그램 정보 가져오기
+def get_daum_info(query: str) -> dict:
+    s = sess(REFER_D)
+    resp = s.get("https://search.daum.net/search?w=tv&q={}".format(quote_plus(query)))
+    soup = BeautifulSoup(resp.text, 'lxml')
+    content_info = soup.select_one('ul.list_date > li.on')
+    air_num = soup.select_one('div.episode_cont strong.txt_episode').text.\
+        replace('회', '')
+    air_date_tmp = content_info['data-clip']
+    air_date = "{}-{}-{}".format(air_date_tmp[:4], air_date_tmp[4:6], air_date_tmp[6:])
+    sub_title = soup.select_one('div.episode_cont p > strong').text
+    ## 회차설명 추출
+    description = soup.select_one('div.episode_cont p.episode_desc').text
+
+    return {
+        'air_num': air_num, 
+        'air_date': air_date, 
+        'sub_title': sub_title, 
+        'desc': description
+    }

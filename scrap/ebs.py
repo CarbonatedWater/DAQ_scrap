@@ -106,28 +106,17 @@ def scrap(prog_name, url, original_air_date, week):
             preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
         except KeyError:
             preview_mov = ''
-        
         ## 다큐프라임 정보 추출(다음 정보)
-        url_daum = 'https://search.daum.net/search?w=tv&q=EBS%20%EB%8B%A4%ED%81%90%20%ED%94%84%EB%9D%BC%EC%9E%84&irk=51278&irt=tv-program&DA=TVP'
-        resp = s.get(url_daum)
-        soup = BeautifulSoup(resp.text, 'lxml')
-        content_info = soup.select_one('ul.list_date > li.on')
-        air_num = soup.select_one('div.episode_cont strong.txt_episode').text.\
-            replace('회', '')
-        air_date_tmp = content_info['data-clip']
-        air_date = "{}-{}-{}".format(air_date_tmp[:4], air_date_tmp[4:6], air_date_tmp[6:])
-        sub_title = soup.select_one('div.episode_cont p > strong').text
-        ## 회차설명 추출
-        description = soup.select_one('div.episode_cont p.episode_desc').text
+        result_daum = utils.get_daum_info(prog_name)
         
         # DB 삽입 결과 생성
         result = {
-            'air_date': air_date, 
-            'air_num': air_num, 
-            'title': title, 
+            'air_date': result_daum['air_date'], 
+            'air_num': result_daum['air_num'], 
+            'title': result_daum['sub_title'], 
             'preview_img': preview_img, 
             'preview_mov': preview_mov, 
-            'description': description.replace('"', "'")
+            'description': result_daum['desc'].replace('"', "'")
         }
 
         return [result]
