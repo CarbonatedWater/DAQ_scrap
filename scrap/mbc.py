@@ -18,7 +18,8 @@ BTV_CON_ID = {
     'PD수첩': '{B03D32D2-3881-4409-AE53-3CC57DC7C271}', 
     '탐사기획 스트레이트': '{6CBA8FDB-9EEA-4008-8D0D-F6DC244969F3}', 
     '실화탐사대': '{7A96FC40-E748-40F2-B435-801E56DD3C64}', 
-    '사람이 좋다': '{C41DFEB1-8A5C-476D-A8D7-372EC3794BEF}'
+    '사람이 좋다': '{C41DFEB1-8A5C-476D-A8D7-372EC3794BEF}', 
+    '시리즈M': '{A25FCF8E-530B-4B0F-B904-5B55BFA394B5}'
 }
 
 
@@ -37,6 +38,11 @@ def scrap(prog_name, url, original_air_date, week):
     new_item = soup.select_one('section.preview-wrap')
     title = new_item.select_one('p').text
     air_num =  new_item.select_one('strong').text
+    # 숫자가 아니면 넘기기
+    try:
+        int(air_num)
+    except:
+        return None
     preview_mov = ''
     preview_img = new_item.select_one('img')['src']
     description = ''

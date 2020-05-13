@@ -16,7 +16,8 @@ REFER = 'http://home.ebs.co.kr/'
 btv_con_id = {
     '다큐 시선': '{617E3A57-A40A-11E7-A50E-376259EF559C}', 
     '건축탐구 집': '{53FEA124-AA1A-460E-A445-2A88A7F2993D}', 
-    '명의': '{57B29139-4752-11E7-B550-E7E06F367DD3}'
+    '명의': '{57B29139-4752-11E7-B550-E7E06F367DD3}', 
+    '극한 직업': '{CA0835F4-BD14-11E6-ABA3-DDAD242B30BF}'
 }
 
 
@@ -41,17 +42,19 @@ def scrap(prog_name, url, original_air_date, week):
                 title = title.replace(air_num_tmp.group(0), "").strip()
         elif prog_name == '건축탐구 집':
             air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
-            title = title.replace("건축탐구 집 시즌2", "").replace("<", "").replace(">", "").strip()
+            title = title.replace("건축탐구 집 시즌3", "").replace("<", "").replace(">", "").strip()
         elif prog_name == "명의":
-            air_num_tmp = re.search(r"제 ([0-9]{3})회", title).group()
             air_num = re.search(r"제 ([0-9]{3})회", title).group(1)
-            title = title.replace(air_num_tmp, "").strip()
+            title = title.replace("제 %s회" % air_num, "").strip()
+        elif prog_name == "극한 직업":
+            air_num = re.search(r"([0-9]{3})화", title).group(1)
+            title = title.replace("%s화 〈" % air_num, "").replace('〉 방송 안내', '').strip()
         time.sleep(3)
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
         content = soup.select_one('div.con_txt')
-        preview_mov = content.select_one('video')['src']
+        preview_mov = ''
         preview_img = ''
         cont_text_tmp = [x.text for x in content.select('div') if (x.attrs == {}) and (x.text != '')]
         if len(cont_text_tmp) < 1:

@@ -35,7 +35,10 @@ def scrap(prog_name, url, original_air_date, week):
         tmp_date = soup.select_one('div.play_info em').text
         air_date = re.match(r"^\d{4}(\.\d{2}){2}", tmp_date).group().replace(".", "-")
         title = soup.find("meta", property="og:title")['content']
-        air_num = re.search(r"([0-9]+)회", title).group(1)
+        try:
+            air_num = re.search(r"([0-9]+)회", title).group(1)
+        except:
+            return None
         preview_img = soup.find("meta", property="og:image")['content']
         preview_mov = None
         description = soup.find("meta", {'name': "og:description"})['content']
