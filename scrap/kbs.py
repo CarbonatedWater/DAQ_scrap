@@ -78,7 +78,11 @@ def scrap(prog_name, url, original_air_date, week):
         url = 'http://news.kbs.co.kr/news/getNewsPage.do'
         resp = s.post(url, data=PARAM_A)
         content_info = json.loads(resp.text)['page_list'][0]
-        title =  content_info['NEWS_TITLE'].split(':')[1].strip()
+        title_tmp = content_info['NEWS_TITLE'].split(':')
+        if len(title_tmp) > 1:
+            title = title_tmp[1].strip()
+        else:
+            title = title_tmp[0].strip()
         air_num = content_info['NEWS_CODE']
         preview_img = REFER + content_info['NEWS_IMG_URL']
         preview_mov = REFER + content_info['NEWS_VOD_URL'].replace('|N|Y|N|', '')
