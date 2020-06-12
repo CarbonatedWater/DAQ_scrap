@@ -177,7 +177,7 @@ def scrap(prog_name, url, original_air_date, week):
             air_date = re.search(r'(\d{4}년 ?\d{1,2}월 ?\d{1,2}일) \(.\)', content_info['description']).group(1)
             air_date = utils.trans_date(air_date)
         except:
-            pass
+            air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
     else:
         air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
 
