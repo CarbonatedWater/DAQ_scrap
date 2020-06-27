@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from scrap import sbs, jtbc, ebs, kbs, mbc
 import Upload
 import query
+import fcm
 
 
 class Updater:
@@ -40,7 +41,7 @@ class Updater:
 
 
     # 스크랩 / DB에 저장된 직전 정보와 비교 후 DB 인서트
-    def content_check(self, ch) -> int:
+    def content_check(self, ch, program_img_id) -> int:
         new_content_cnt = 0
         # 1. 스크랩할 프로그램 리스트 추출
         if ch != 'all':
@@ -90,6 +91,12 @@ class Updater:
                     final_insert_values = tuple([_id] + insert_values)
                     #print(final_insert_values)
                     self.cur.execute(insert_query, (final_insert_values))
+                    # 앱에 Push 알림
+                    push_message = "%s 방영정보가 업데이트 되었습니다!" % name
+                    topic = program_img_id[name]
+                    print('===== topic: %s | message: %s' % (topic, push_message))
+                    push_result = fcm.push_service.notify_topic_subscribers(topic_name=topic, message_body=push_message)
+                    print(push_result)
                 elif int(result['air_num']) == tmp[0]:
                     print('===== air num equals!')
                     # 기존에 있던 정보는 업데이트
@@ -124,9 +131,11 @@ class Updater:
 
 if __name__ == "__main__":
     updater = Updater()
+    # 0. 프로그램 이미지 파일명 로딩
+    with open('./program_img_id.json', 'r') as f:
+        program_img_id = json.load(f)
     # 1. 프로그램 정보 체크
-    #new_info_cnt = updater.content_check('EBS')
-    new_info_cnt = updater.content_check(sys.argv[1])
+    new_info_cnt = updater.content_check(sys.argv[1], program_img_id)
     print('===== scraping completed! new preview: {}'.format(new_info_cnt))
     # 2. 이번주 방영정보 페이지 생성
     if new_info_cnt > 0:
@@ -136,8 +145,6 @@ if __name__ == "__main__":
         print(air_times)
         Upload.air_html(new_contents, air_times, 'week')
     # 3. 프로그램별 방영리스트 페이지 생성
-    with open('./program_img_id.json', 'r') as f:
-        program_img_id = json.load(f)
     for program in program_img_id.items():
         program_data = updater.get_program_info(program[0])
         Upload.air_html(program_data, air_times, program[1])
