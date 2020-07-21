@@ -25,13 +25,13 @@ def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
     resp = s.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
-    new_item = soup.select('tbody#itemList > tr')[0]
-    try:
-        title = new_item.select_one('td.subject span').text
-    except:
-        return None
-    sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
     if prog_name != '다큐프라임':
+        new_item = soup.select('tbody#itemList > tr')[0]
+        try:
+            title = new_item.select_one('td.subject span').text
+        except:
+            return None
+        sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
         if prog_name == '다큐 시선':
             air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
             air_num = air_num_tmp.group(1)
@@ -101,16 +101,20 @@ def scrap(prog_name, url, original_air_date, week):
         return [result]
         
     else:
-        # 이미지 수집을 위한 EBS 방송 페이지 접속
-        resp = s.get(sub_link)
-        soup = BeautifulSoup(resp.text, 'lxml')
-        preview_img = soup.select_one('div.view_con > div.gallery > div.gallery_img > p > img')['src']
-        try:
-            preview_mov = soup.select_one('div.view_con > div.gallery > div.owl-carousel a')['data-src']
-        except KeyError:
-            preview_mov = ''
         ## 다큐프라임 정보 추출(다음 정보)
         result_daum = utils.get_daum_info(prog_name)
+        # 다큐프라임 네이버 블로그 수집
+        resp = s.get(url)
+        soup = BeautifulSoup(resp.text, 'lxml')
+        new_item = soup.select_one('table#printPost1')
+        title_tmp = new_item.select('div.pcol1')[0].text.strip()
+        title = re.search(r'\<(.+)\>', title_tmp).group(1)
+        if result_daum['sub_title'] == title:
+            preview_img = new_item.select('div.se-main-container > div')[0].select_one('img')['src']
+            desc = new_item.select('div.se-main-container > div')[4].text.strip()
+        else:
+            preview_img = ''
+            desc = result_daum['desc'].replace('"', "'")
         if result_daum:
             # DB 삽입 결과 생성
             result = {
@@ -118,8 +122,8 @@ def scrap(prog_name, url, original_air_date, week):
                 'air_num': result_daum['air_num'], 
                 'title': result_daum['sub_title'], 
                 'preview_img': preview_img, 
-                'preview_mov': preview_mov, 
-                'description': result_daum['desc'].replace('"', "'")
+                'preview_mov': '', 
+                'description': desc
             }
             return [result]
         else:

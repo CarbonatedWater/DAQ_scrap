@@ -135,7 +135,7 @@ def scrap(prog_name, url, original_air_date, week):
         # 디스크립션 수정
         if prog_name == '제보자들':
             # air number, title 수정
-            air_num = title.replace("회", "")
+            air_num = re.compile(r'[-0-9]+').search(title).group()
             title = ''
             if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
@@ -152,7 +152,12 @@ def scrap(prog_name, url, original_air_date, week):
         
         # 등록일 처리
         if prog_name == '세상의 모든 다큐':
-            regdate_tmp = title.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
+            try:
+                regdate_tmp = title.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
+                regdate = parse(regdate_tmp).date()
+            except:
+                tmp = content_info['title'].split('/')[1].strip()
+            regdate_tmp = tmp.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
             regdate_tmp = ''.join(regdate_tmp)
         else:
             regdate_tmp = content_info['rdatetime'].split()[0]
