@@ -108,7 +108,10 @@ def scrap(prog_name, url, original_air_date, week):
         soup = BeautifulSoup(resp.text, 'lxml')
         new_item = soup.select_one('table#printPost1')
         title_tmp = new_item.select('div.pcol1')[0].text.strip()
-        title = re.search(r'\<(.+)\>', title_tmp).group(1)
+        if re.search('EBS다큐프라임', title_tmp):
+            title = re.search(r'\<(.+)\>', title_tmp).group(1)
+        else:
+            return None
         if result_daum['sub_title'] == title:
             preview_img = new_item.select('div.se-main-container > div')[0].select_one('img')['src']
             desc = new_item.select('div.se-main-container > div')[4].text.strip()
