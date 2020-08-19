@@ -83,6 +83,11 @@ class Updater:
                         result[k] = v
                 insert_columns = [col for col in list(result.keys()) if col not in null_items]
                 insert_values = ['%s' % result[x] if x != 'air_num' else result[x] for x in insert_columns]
+                try:
+                    new_air_num = int(result['air_num'])
+                except Exception as e:
+                    print('===== error: ', e)
+                    new_air_num = ''
                 if tmp is None or datetime.strptime(result['air_date'], '%Y-%m-%d') > datetime.strptime(tmp[1], '%Y-%m-%d'):
                     print('===== new data!')
                     # 기존에 없던 정보는 insert로 추가    
@@ -97,11 +102,11 @@ class Updater:
                     print('===== topic: %s | message: %s' % (topic, push_message))
                     push_result = fcm.push_service.notify_topic_subscribers(topic_name=topic, message_body=push_message)
                     print(push_result)
-                elif int(result['air_num']) == tmp[0]:
+                elif new_air_num == tmp[0]:
                     print('===== air num equals!')
                     # 기존에 있던 정보는 업데이트
                     update_query = query.update_new_air_info.format(
-                        result['air_date'], result['air_num'], result['title'], 
+                        result['air_date'], new_air_num, result['title'], 
                         result['preview_img'], result['preview_mov'], result['description'], 
                         _id, result['air_num'], result['air_date'] # WHERE 조건
                     )
