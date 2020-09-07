@@ -26,8 +26,14 @@ PATH_GIT_REPO = r'path\to\your\project\folder\.git'
 
 def air_html(contents, air_times, directory):
     inner = ''
-
+    # 프로그램 방영순서로 정렬
+    sorted_contents = []
     for content in contents:
+        tmp = list(content)
+        tmp.append(tmp[3] + air_times[content[0]-1][1])
+        sorted_contents.append(tmp)
+    sorted_contents = sorted(sorted_contents, key=lambda x: x[-1])
+    for content in sorted_contents:
         tmp_td = ''
         program_id = None
         for i, col in enumerate(content):

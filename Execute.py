@@ -131,7 +131,26 @@ class Updater:
     # 프로그램 방영시간 기정보 가져오기
     def get_program_air_time(self):
         self.cur.execute(query.get_program_air_time)
-        return self.cur.fetchall()
+        air_time_list = [x[0] for x in self.cur.fetchall()]
+        air_time_result = []
+        for i, item in enumerate(air_time_list):
+            tmp = item.split()
+            hour = int(tmp[1].replace('시', ''))
+            if tmp[0] == '오후':
+                hour += 12
+            elif tmp[0] == '오전' and hour == 12:
+                hour == '00'
+            hour = str(hour)
+            try:
+                minute = tmp[2].replace('분', '')
+                if len(minute) < 2:
+                    minute = '0'+str(minute)
+            except:
+                minute = '00'
+            air_time_result.append(
+                (air_time_list[i], hour+minute)
+            )
+        return air_time_result
 
 
 if __name__ == "__main__":
