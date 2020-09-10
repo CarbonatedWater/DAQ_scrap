@@ -42,7 +42,7 @@ BBS_ID = {
     '특파원 보고 세계는 지금': 'T2016-0337-04-12370', 
     '세상의 모든 다큐': 'T2011-0923-04-569614', 
     '다큐 인사이트': 'T2019-0296-04-850025', 
-    '시사기획 창': 'T2011-1097-04-968945', 
+    '시사기획 창': 'T2011-1097-04-428648', 
     '다큐세상': 'T2018-0304-04-989186', 
     '생로병사의 비밀': 'T2002-0429-04-185153', 
     '다큐멘터리 3일': 'T2007-0188-04-895363', 
@@ -74,51 +74,19 @@ def update_from_btv(prog_name: str, air_date: str):
 
 def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
-    if prog_name == '시사기획 창':
-        url = 'http://news.kbs.co.kr/news/getNewsPage.do'
-        resp = s.post(url, data=PARAM_A)
-        content_info = json.loads(resp.text)['page_list'][0]
-        title_tmp = content_info['NEWS_TITLE'].split(':')
-        if len(title_tmp) > 1:
-            title = title_tmp[1].strip()
-        else:
-            title = title_tmp[0].strip()
-        air_num = content_info['NEWS_CODE']
-        preview_img = REFER + content_info['NEWS_IMG_URL']
-        preview_mov = REFER + content_info['NEWS_VOD_URL'].replace('|N|Y|N|', '')
-        description = ''
-        regdate_tmp = re.search(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", content_info['NEWS_REG_DATE']).group()
-    elif prog_name in ['다큐멘터리 3일', '생로병사의 비밀']:
-        resp = utils.naver_search(s, prog_name)
-        soup = BeautifulSoup(resp.text, "lxml")
-        content_info = soup.select_one('div.turn_info_wrap')
-        title = content_info.select_one('strong.tlt').text
-        air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
-        air_date = re.search(r'\d{4}\.?\d{1,2}\.?\d{1,2}', content_info.select('dd')[1].text).group()
-        try:
-            preview_img = content_info.select_one('div.thumb > img')['src'].replace('quality=90', 'quality=100')\
-                .replace('265x150', '530x300').replace(';', '')
-        except:
-            print('===== naver img None')
-            preview_img = ''
+    if prog_name in ['생로병사의 비밀', '다큐멘터리 3일']:
+        result_daum = utils.get_daum_info(prog_name)
+        air_num = result_daum['air_num']
+        air_date = result_daum['air_date']
+        title = result_daum['sub_title']
+        description = result_daum['desc']
+        preview_img = result_daum['preview_img']
         preview_mov = ''
-        description = content_info.select_one('p.episode_txt').text
-        if prog_name == '생로병사의 비밀':
-            PARAM_B['bbs_id'] = BBS_ID[prog_name]
-            resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
-            #print(resp.text)
-            content_info = json.loads(resp.text)['data'][0]    
-            preview_img_tmp = content_info['post_cont_image']
-            if preview_img_tmp is None:
-                preview_img = ''
-            else:    
-                preview_img = json.loads(preview_img_tmp)[0]
     else:
         PARAM_B['bbs_id'] = BBS_ID[prog_name]
         resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
         #print(resp.text)
         content_info = json.loads(resp.text)['data'][0]
-        
         # preview image, description 링크 저장
         preview_img_tmp = content_info['post_cont_image']
         if preview_img_tmp is None:
@@ -140,6 +108,10 @@ def scrap(prog_name, url, original_air_date, week):
             if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
+        elif prog_name == '시사기획 창':
+            air_num = re.compile(r'[-0-9]+').search(title).group()
+            padding = re.compile(r'\[.*\: ?').match(title).group()
+            title = title.replace(padding, '')
         elif prog_name == '특파원 보고 세계는 지금':
             if re.compile(r"^.+내용■ ").search(content_info['description']) is not None:
                 front_padding = re.compile(r"^(.+내용■ )").search(content_info['description']).group(1)
@@ -192,26 +164,14 @@ def scrap(prog_name, url, original_air_date, week):
         if description_tmp is not None:
             description = description_tmp
 
-
-    # 네이버 정보 보완
+    # 다음 정보 보완
     if prog_name == '제보자들':
-        resp = utils.naver_search(s, prog_name)
-        soup = BeautifulSoup(resp.text, "lxml")
-        content_info = soup.select_one('div.turn_info_wrap')
-        try:
-            air_date_check = re.search(r'\d{4}\.?\d{1,2}\.?\d{1,2}', content_info.select('dd')[1].text).group()
-        except:
-            pass
-        print("===== air date check", air_date_check)
-        if air_date_check and air_date == str(parse(air_date_check).date()):
-            air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
-            description = content_info.select_one('p.episode_txt').text
-        elif air_date_check and parse(air_date).date() < parse(air_date_check).date():
-            air_num = content_info.select_one('dl.turn_info_desc > dd').text.replace('회', '')
-            air_date = str(parse(air_date_check).date())
-            preview_mov = ''
-            description = content_info.select_one('p.episode_txt').text
-        
+        result_daum = utils.get_daum_info(prog_name)
+        if result_daum and result_daum['air_date'] == air_date:
+            air_num = result_daum['air_num']
+            air_date = result_daum['air_date']
+            title = result_daum['sub_title']
+            description = result_daum['desc']
     
     result = {
         'air_date': air_date, 

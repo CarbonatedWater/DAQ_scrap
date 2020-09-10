@@ -74,13 +74,18 @@ def get_daum_info(query: str) -> dict:
         air_date_tmp = content_info['data-clip']
         air_date = "{}-{}-{}".format(air_date_tmp[:4], air_date_tmp[4:6], air_date_tmp[6:])
         sub_title = soup.select_one('div.episode_cont p > strong').text
+        try:
+            preview_img = soup.select_one('div.wrap_player > div > a > img')['src']
+        except:
+            preview_img = ''
         ## 회차설명 추출
         description = soup.select_one('div.episode_cont p.episode_desc').text
         return {
             'air_num': air_num, 
             'air_date': air_date, 
             'sub_title': sub_title, 
-            'desc': description
+            'desc': description, 
+            'preview_img': preview_img
         }
     except:
         print("===== daum error")
