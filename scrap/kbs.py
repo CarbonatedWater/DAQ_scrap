@@ -73,7 +73,6 @@ def update_from_btv(prog_name: str, air_date: str):
 
 
 def scrap(prog_name, url, original_air_date, week):
-    s = utils.sess(REFER)
     if prog_name in ['생로병사의 비밀', '다큐멘터리 3일']:
         result_daum = utils.get_daum_info(prog_name)
         air_num = result_daum['air_num']
@@ -84,6 +83,7 @@ def scrap(prog_name, url, original_air_date, week):
         preview_mov = ''
     else:
         PARAM_B['bbs_id'] = BBS_ID[prog_name]
+        s = utils.sess(REFER)
         resp = s.get(BBS_URL, params=PARAM_B) # 공통 URL 사용
         #print(resp.text)
         content_info = json.loads(resp.text)['data'][0]
@@ -109,9 +109,12 @@ def scrap(prog_name, url, original_air_date, week):
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
         elif prog_name == '시사기획 창':
-            air_num = re.compile(r'[-0-9]+').search(title).group()
-            padding = re.compile(r'\[.*\: ?').match(title).group()
-            title = title.replace(padding, '')
+            try:
+                air_num = re.compile(r'[-0-9]+').search(title).group()
+                padding = re.compile(r'\[.*\: ?').match(title).group()
+                title = title.replace(padding, '')
+            except:
+                pass
         elif prog_name == '특파원 보고 세계는 지금':
             if re.compile(r"^.+내용■ ").search(content_info['description']) is not None:
                 front_padding = re.compile(r"^(.+내용■ )").search(content_info['description']).group(1)
