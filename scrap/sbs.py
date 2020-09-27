@@ -33,9 +33,9 @@ def scrap(prog_name, url, original_air_date, week):
     #soup = BeautifulSoup(resp.text, 'lxml')
     content = json.loads(resp.text)
     if prog_name in ["궁금한 이야기 Y", "그것이 알고싶다", '순간포착 세상에 이런일이']:
-        show_advance = content['layers'][4]['items'][0]['medias'] # 미리보기 리스트
+        show_advance = content['layers'][3]['items'][0]['medias'] # 미리보기 리스트
     elif prog_name == "SBS 스페셜":
-        show_advance = content['layers'][4]['items'][2]['medias']
+        show_advance = content['layers'][3]['items'][2]['medias']
     print(show_advance[0])
     try:
         regdate = parse(show_advance[0]['regdate']).date()
