@@ -133,7 +133,10 @@ def scrap(prog_name, url, original_air_date, week):
             except:
                 tmp = content_info['title'].split('/')[1].strip()
             regdate_tmp = tmp.replace('년', '-').replace('월', '-').replace('일', '').split()[:3]
-            regdate_tmp = re.compile(r'(.*)\(.+\)').search(''.join(regdate_tmp)).group(1)
+            try:
+                regdate_tmp = re.compile(r'(.*)\(.+\)').search(''.join(regdate_tmp)).group(1)
+            except:
+                regdate_tmp = ''.join(regdate_tmp)
         else:
             regdate_tmp = content_info['rdatetime'].split()[0]
     
