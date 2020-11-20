@@ -42,11 +42,14 @@ def scrap(prog_name, url, original_air_date, week):
         preview_img = soup.find("meta", property="og:image")['content']
         preview_mov = None
         description = soup.find("meta", {'name': "og:description"})['content']
-    elif prog_name == '다큐 플러스':
+    elif prog_name in ['다큐 플러스', 'JTBC FACTUAL']:
         content = soup.select_one('div.bx_preview')
         tmp_date = content.select_one('span.date').text
         air_date = re.match(r"^\d{4}(\.\d{2}){2}", tmp_date).group().replace(".", "-")
-        title = content.select_one('span.info span.txt').text
+        if prog_name == '다큐 플러스':
+            title = content.select_one('span.info span.txt').text
+        else:
+            title = content.select_one('span.info span.tit').text
         preview_img = content.select_one('span.img > img')['src']
         # 회차가 없음
         air_num = re.search(r"img\/([0-9]{8})", preview_img).group(1)
