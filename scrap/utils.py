@@ -76,6 +76,9 @@ def get_daum_info(query: str) -> dict:
         sub_title = soup.select_one('div.episode_cont p > strong').text
         try:
             preview_img = soup.select_one('div.wrap_player > div > a > img')['src']
+            print(preview_img)
+            if not(preview_img.startswith("http")):
+                preview_img = 'http:' + preview_img
         except:
             preview_img = ''
         ## 회차설명 추출
