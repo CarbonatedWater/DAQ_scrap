@@ -67,15 +67,10 @@ def scrap(prog_name, url, original_air_date, week):
         preview_img = "https:" + show_advance[0]['thumb']['large']
         preview_mov = None
         description = show_advance[0]['link_url']
-        # sk BTV 정보 보완
-        btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
-        if btv_info:
-            try:
-                air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
-            except:
-                pass
-            if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
-                description = btv_info['content']['c_desc']
+    # DAUM 정보 보완
+    result_daum = utils.get_daum_info(prog_name)
+    if result_daum and result_daum['air_date'] == air_date:
+        description = result_daum['desc']
     
     result = {
         'air_date': air_date, 
