@@ -26,36 +26,48 @@ def scrap(prog_name, url, original_air_date, week):
     resp = s.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
     if prog_name != '다큐프라임':
-        new_item = soup.select('tbody#itemList > tr')[0]
-        try:
-            title = new_item.select_one('td.subject span').text
-        except:
-            return None
-        sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
-        if prog_name == '다큐 시선':
-            air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
-            air_num = air_num_tmp.group(1)
-            date_tmp = re.search(r"\([0-9]{1,2}\/[0-9]{1,2}\)", title)
-            if date_tmp:
-                title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
-            else:
-                title = title.replace(air_num_tmp.group(0), "").strip()
-        elif prog_name == '건축탐구 집':
-            air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
-            title = title.replace("건축탐구 집 시즌3", "").replace("<", "").replace(">", "").strip()
-        elif prog_name == "명의":
-            air_num = re.search(r"제 ([0-9]{3})회", title).group(1)
-            title = title.replace("제 %s회" % air_num, "").strip()
-        elif prog_name == "극한 직업":
-            air_num = re.search(r"([0-9]{3})화", title).group(1)
-            title = title.replace("%s화 〈" % air_num, "").replace('〉 방송 안내', '').strip()
+        if prog_name == '다큐 잇it':
+            new_item = soup.select('ul.thumb_list > li')[0]
+            title = new_item.select_one('span.tit').text.replace('예고편', '').strip()
+            air_num = re.search(r"([0-9]{2,})화", title).group(1)
+            title = re.search(r"\[(.+)\]", title).group(1)
+            preview_img = new_item.select_one('img')['src']
+            sub_link = requests.compat.urljoin(REFER, new_item.select_one('a')['href'])
+        else:
+            new_item = soup.select('tbody#itemList > tr')[0]
+            try:
+                title = new_item.select_one('td.subject span').text
+            except:
+                return None
+            sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
+            if prog_name == '다큐 시선':
+                air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
+                air_num = air_num_tmp.group(1)
+                date_tmp = re.search(r"\([0-9]{1,2}\/[0-9]{1,2}\)", title)
+                if date_tmp:
+                    title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
+                else:
+                    title = title.replace(air_num_tmp.group(0), "").strip()
+            elif prog_name == '건축탐구 집':
+                air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
+                title = title.replace("건축탐구 집 시즌3", "").replace("<", "").replace(">", "").strip()
+            elif prog_name == "명의":
+                air_num = re.search(r"제 ([0-9]{3})회", title).group(1)
+                title = title.replace("제 %s회" % air_num, "").strip()
+            elif prog_name == "극한 직업":
+                air_num = re.search(r"([0-9]{3})화", title).group(1)
+                title = title.replace("%s화 〈" % air_num, "").replace('〉 방송 안내', '').strip()
+
         time.sleep(3)
         # 뉴 방송 페이지 접속
         resp = s.get(sub_link)
         soup = BeautifulSoup(resp.text, 'lxml')
         content = soup.select_one('div.con_txt')
-        preview_mov = ''
-        preview_img = ''
+        if prog_name == '다큐 잇it':
+            preview_mov = content.select_one('div#silverlightControlHost > video')['src']
+        else:
+            preview_mov = ''
+            preview_img = ''
         cont_text_tmp = [x.text for x in content.select('div') if (x.attrs == {}) and (x.text != '')]
         if len(cont_text_tmp) < 1:
             # 추출 실패 시 조건 완화해서 재실행
@@ -77,18 +89,12 @@ def scrap(prog_name, url, original_air_date, week):
             air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
         else:
             air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())
-        # sk BTV 정보 보완
-        btv_info = utils.get_btv_info(btv_con_id[prog_name])
-        if btv_info:
-            try:
-                air_date_check = re.search(r'\d{2}\.\d{2}\.\d{2}', btv_info['content']['s_title']).group()
-            except:
-                pass
-            if air_date_check and (air_date == str(parse('20' + air_date_check).date())):
-                description = btv_info['content']['c_desc']
-                preview_img = btv_info['content']['hd_series'][-1]['thumb_image'].\
-                replace('195x110', '390x220')
-
+        # DAUM 정보 보완
+        if prog_name == '다큐 잇it':
+            result_daum = utils.get_daum_info(prog_name)
+            if result_daum and result_daum['air_date'] == air_date:
+                description = result_daum['desc']
+        
         result = {
             'air_date': air_date, 
             'air_num': air_num, 
