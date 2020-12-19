@@ -55,6 +55,11 @@ def scrap(prog_name, url, original_air_date, week):
         air_num = re.search(r"img\/([0-9]{8})", preview_img).group(1)
         preview_mov = None
         description = content.select_one('span.txt').text
+    
+    # DAUM 정보 보완
+    result_daum = utils.get_daum_info(prog_name)
+    if result_daum and result_daum['air_date'] == air_date:
+        description = result_daum['desc']
 
     result = {
         'air_date': air_date, 

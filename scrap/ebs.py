@@ -83,10 +83,9 @@ def scrap(prog_name, url, original_air_date, week):
         else:
             air_date = str(parse(air_date_tmp.replace('일', '').replace('월', '-').replace('년', '')).date())
         # DAUM 정보 보완
-        if prog_name == '다큐 잇it':
-            result_daum = utils.get_daum_info(prog_name)
-            if result_daum and result_daum['air_date'] == air_date:
-                description = result_daum['desc']
+        result_daum = utils.get_daum_info(prog_name)
+        if result_daum and result_daum['air_date'] == air_date:
+            description = result_daum['desc']
         
         result = {
             'air_date': air_date, 

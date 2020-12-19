@@ -166,6 +166,10 @@ def scrap(prog_name, url, original_air_date, week):
             air_date = result_daum['air_date']
             title = result_daum['sub_title']
             description = result_daum['desc']
+    else:
+        result_daum = utils.get_daum_info(prog_name)
+        if result_daum and result_daum['air_date'] == air_date:
+            description = result_daum['desc']
     
     result = {
         'air_date': air_date, 

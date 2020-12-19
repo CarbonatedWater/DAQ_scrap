@@ -37,9 +37,10 @@ def scrap(prog_name, url, original_air_date, week):
     preview_img = new_item.select_one('img')['src']
     description = ''
     air_date = new_item.select_one('span.date').text.replace('.', '-')
-    # sk BTV 정보 보완
-    #btv_info = utils.get_btv_info(BTV_CON_ID[prog_name])
-    #print(btv_info)
+    # DAUM 정보 보완
+    result_daum = utils.get_daum_info(prog_name)
+    if result_daum and result_daum['air_date'] == air_date:
+        description = result_daum['desc']
                
     result = {
         'air_date': air_date, 
