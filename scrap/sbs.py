@@ -18,13 +18,8 @@ API_URL = {
     '그것이 알고싶다': 'unansweredquestions', 
     '궁금한 이야기 Y': 'cube', 
     '순간포착 세상에 이런일이': 'whatonearth', 
-    '꼬리에 꼬리를 무는 그날 이야기': '2020tail'
-}
-
-BTV_CON_ID = {
-    'SBS 스페셜': '{A4FA8AF7-6AC3-11E8-BC2D-BD92772229B5}', 
-    '그것이 알고싶다': '{C5AEC9FC-E1FB-493A-BF5E-69902B04F38A}', 
-    '궁금한 이야기 Y': '{4BD19D72-285F-4629-A98F-3563064BD64A}'   
+    '꼬리에 꼬리를 무는 그날 이야기': '2020tail', 
+    '생활의 달인': 'lifemaster'
 }
 
 
@@ -34,11 +29,11 @@ def scrap(prog_name, url, original_air_date, week):
     #soup = BeautifulSoup(resp.text, 'lxml')
     content = json.loads(resp.text)
     if prog_name in ["궁금한 이야기 Y", "그것이 알고싶다", '순간포착 세상에 이런일이', \
-        '꼬리에 꼬리를 무는 그날 이야기']:
+        '꼬리에 꼬리를 무는 그날 이야기', '생활의 달인']:
         show_advance = content['layers'][3]['items'][0]['medias'] # 미리보기 리스트
     elif prog_name == "SBS 스페셜":
         show_advance = content['layers'][3]['items'][2]['medias']
-    print(show_advance[0])
+    #print(show_advance[0])
     try:
         regdate = parse(show_advance[0]['regdate']).date()
         day_diff = week.index(original_air_date[0]) - regdate.weekday()
@@ -46,7 +41,7 @@ def scrap(prog_name, url, original_air_date, week):
     except:
         air_date = str(parse(show_advance[0]['broaddate']).date())
 
-    if prog_name in ['순간포착 세상에 이런일이', '꼬리에 꼬리를 무는 그날 이야기']:
+    if prog_name in ['순간포착 세상에 이런일이', '꼬리에 꼬리를 무는 그날 이야기', '생활의 달인']:
         if prog_name == '꼬리에 꼬리를 무는 그날 이야기':
             title = show_advance[0]['contenttitle']
         else:

@@ -13,13 +13,6 @@ from scrap import utils
 
 REFER = 'http://home.ebs.co.kr/'
 
-btv_con_id = {
-    '다큐 시선': '{617E3A57-A40A-11E7-A50E-376259EF559C}', 
-    '건축탐구 집': '{53FEA124-AA1A-460E-A445-2A88A7F2993D}', 
-    '명의': '{57B29139-4752-11E7-B550-E7E06F367DD3}', 
-    '극한 직업': '{CA0835F4-BD14-11E6-ABA3-DDAD242B30BF}'
-}
-
 
 def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)

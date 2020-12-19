@@ -49,12 +49,6 @@ BBS_ID = {
     '시사 직격': 'T2019-0280-04-513653'
 }
 
-BTV_CON_ID = {
-    '시사기획 창': '{10D376EB-3EE8-4576-AEB4-05094068615A}', 
-    '시사 직격': '{620D0AE8-9DBE-4792-8AC4-903DC7F08FCD}', 
-    '다큐 인사이트': '{6ECA1F4E-5777-4A04-B4A0-AF8039A04539}'
-}
-
 
 # BTV 정보로 방영정보 업데이트
 def update_from_btv(prog_name: str, air_date: str):
@@ -163,12 +157,6 @@ def scrap(prog_name, url, original_air_date, week):
             air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
     else:
         air_date = str(utils.next_weekday(regdate, week.index(original_air_date[0])))
-
-    # sk BTV 정보 보완
-    if prog_name in BTV_CON_ID.keys():
-        description_tmp = update_from_btv(prog_name, air_date)
-        if description_tmp is not None:
-            description = description_tmp
 
     # 다음 정보 보완
     if prog_name == '제보자들':
