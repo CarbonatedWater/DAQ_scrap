@@ -80,7 +80,7 @@ def update_noti_html(version: int):
     p.write_text(html)
 
 
-def setup_update_program(prog_name: str, img_name: str):
+def setup_program(prog_name: str, img_name: str):
     # 1. 이미지파일명 json 만들기
     upload_program_info.add_program_img(prog_name, img_name)
     # 2. 방영정보 폴더 만들기
@@ -88,5 +88,11 @@ def setup_update_program(prog_name: str, img_name: str):
     if not os.path.exists(air_dir):
         os.mkdir(air_dir)
     # 3. 프로그램 정보 페이지 업데이트
+    cont = upload_program_info.update_program_base_info()
+    program_detail_html(cont, 'programs')
+
+
+def update_program():
+    # 프로그램 정보 페이지 업데이트
     cont = upload_program_info.update_program_base_info()
     program_detail_html(cont, 'programs')
