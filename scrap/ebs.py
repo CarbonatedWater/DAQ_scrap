@@ -72,7 +72,11 @@ def scrap(prog_name, url, original_air_date, week):
         for text in cont_text_tmp:
             if re.search("EBS", text):
                 try:
-                    air_date_tmp = re.search(r"[0-9]{4}년 ?[0-9]{1,2}월 ?[0-9]{1,2}일", text).group()
+                    if re.search(r"[0-9]{4}년", text):
+                        air_date_tmp = re.search(r"[0-9]{4}년 ?[0-9]{1,2}월 ?[0-9]{1,2}일", text).group()
+                    else:
+                        air_date_tmp = re.search(r"[0-9]{1,2}월 ?[0-9]{1,2}일", text).group()
+                        air_date_tmp = "2021년 %s" % air_date_tmp
                 except:
                     print("===== sentence: %s" % text)
                     pass
