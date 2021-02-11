@@ -29,27 +29,29 @@ def scrap(prog_name, url, original_air_date, week):
         else:
             new_item = soup.select('tbody#itemList > tr')[0]
             try:
-                title = new_item.select_one('td.subject span').text
+                title = new_item.select_one('td.subject span').text.strip()
             except:
                 return None
             sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
             if prog_name == '다큐 시선':
-                air_num_tmp = re.search(r"\[([0-9]+)화\]", title)
-                air_num = air_num_tmp.group(1)
+                air_num_re = re.search(r"\[([0-9]+)화\]", title)
+                air_num = air_num_re.group(1)
                 date_tmp = re.search(r"\([0-9]{1,2}\/[0-9]{1,2}\)", title)
                 if date_tmp:
-                    title = title.replace(air_num_tmp.group(0), "").replace(date_tmp.group(), "").strip()
+                    title = title.replace(air_num_re.group(0), "").replace(date_tmp.group(), "").strip()
                 else:
-                    title = title.replace(air_num_tmp.group(0), "").strip()
+                    title = title.replace(air_num_re.group(0), "").strip()
             elif prog_name == '건축탐구 집':
                 air_num = re.search(r"view/([0-9]{11})", sub_link).group(1)
                 title = title.replace("건축탐구 집 시즌3", "").replace("<", "").replace(">", "").strip()
             elif prog_name == "명의":
-                air_num = re.search(r"제 ([0-9]{3})회", title).group(1)
-                title = title.replace("제 %s회" % air_num, "").strip()
+                air_num_re = re.search(r"제? ?([0-9]{3})회", title)
+                air_num = air_num_re.group(1)
+                title = title.replace(air_num_re.group(), "").strip()
             elif prog_name == "극한 직업":
-                air_num = re.search(r"([0-9]{3})화", title).group(1)
-                title = title.replace("%s화 〈" % air_num, "").replace('〉 방송 안내', '').strip()
+                air_num_re = re.search(r"([0-9]{3})화", title)
+                air_num = air_num_re.group(1)
+                title = title.replace(air_num_re.group(), "").replace('〉 방송 안내', '').strip()
 
         time.sleep(3)
         # 뉴 방송 페이지 접속
