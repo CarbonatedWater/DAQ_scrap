@@ -4,7 +4,7 @@
 
 import os
 from pathlib import Path
-from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
 import upload_program_info
 
 
@@ -71,12 +71,19 @@ def program_detail_html(contents, directory):
     p.write_text(html)
 
 
-def update_noti_html(version: int):
+def update_noti_html(version=None):
+    p = Path('./pages') / 'update' / 'index.html'
+    if version is None:
+        raw = p.read_text()
+        soup = BeautifulSoup(raw)
+        num = soup.select_one('h1').text
+        val = int(num) + 1
+    else:
+        val = version
     # change_type: "new", "change"
-    inner = '<h1>{}</h1>'.format(version)
+    inner = '<h1>{}</h1>'.format(val)
     html = '{}{}{}'.format(HTML_FRONT, inner, HTML_REAR)
 
-    p = Path('./pages') / 'update' / 'index.html'
     p.write_text(html)
 
 

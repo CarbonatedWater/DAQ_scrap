@@ -51,8 +51,11 @@ def scrap(prog_name, url, original_air_date, week):
         description = show_advance[0]['description']
         # 다음 TV 정보 반영(회차)
         result_daum = utils.get_daum_info(prog_name)
-        air_num = result_daum['air_num']
-        air_date = result_daum['air_date']
+        if result_daum is not None:
+            air_num = result_daum['air_num']
+            air_date = result_daum['air_date']
+        else:
+            air_num = show_advance[0]['contentnumber']
     else:
         air_num_tmp = re.search(r"([0-9]+)회", show_advance[0]['title'])
         if not(air_num_tmp):
