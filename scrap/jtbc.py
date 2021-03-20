@@ -2,10 +2,8 @@
 JTBC 프로그램 수집
 """
 
-import requests
 import re
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
 from scrap import utils
 
 

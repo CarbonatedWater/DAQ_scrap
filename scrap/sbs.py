@@ -4,11 +4,9 @@ SBS 프로그램 수집
 
 import json
 import re
-from datetime import datetime, timedelta
+from datetime import timedelta
 from dateutil.parser import parse
-from bs4 import BeautifulSoup 
 from scrap import utils
-from urllib.parse import unquote
 
 
 REFER = 'https://programs.sbs.co.kr/'

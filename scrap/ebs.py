@@ -2,10 +2,9 @@
 EBS 프로그램 수집
 """
 
-import requests
+from requests import compat
 import re
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
 from dateutil.parser import parse
 import time
 from scrap import utils
@@ -25,14 +24,14 @@ def scrap(prog_name, url, original_air_date, week):
             air_num = re.search(r"([0-9]{2,})화", title).group(1)
             title = re.search(r"\[(.+)\]", title).group(1)
             preview_img = new_item.select_one('img')['src']
-            sub_link = requests.compat.urljoin(REFER, new_item.select_one('a')['href'])
+            sub_link = compat.urljoin(REFER, new_item.select_one('a')['href'])
         else:
             new_item = soup.select('tbody#itemList > tr')[0]
             try:
                 title = new_item.select_one('td.subject span').text.strip()
             except:
                 return None
-            sub_link = requests.compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
+            sub_link = compat.urljoin(REFER, new_item.select_one('td.subject a')['href'])
             if prog_name == '다큐 시선':
                 air_num_re = re.search(r"\[([0-9]+)화\]", title)
                 air_num = air_num_re.group(1)

@@ -2,12 +2,8 @@
 MBC 프로그램 수집
 """
 
-import requests
-import re
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
-from dateutil.parser import parse
-import time
+from datetime import timedelta
 from scrap import utils
 
 
