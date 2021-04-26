@@ -82,7 +82,7 @@ def update_noti_html(ch_cnage, version=None):
         val = version
     # 채널 추가기능을 위한 업데이트 넘버 체크
     if ch_cnage and val // 2 == 1:
-        val += 1
+        val += 2
     elif not(ch_cnage) and val // 2 == 0:
         val += 1
 
