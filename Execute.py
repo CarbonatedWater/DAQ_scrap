@@ -5,7 +5,7 @@ import sqlite3
 import time
 import random
 from datetime import datetime, timedelta
-from scrap import sbs, jtbc, ebs, kbs, mbc
+from scrap import sbs, jtbc, ebs, kbs, mbc, tvn
 import Upload
 import query
 import fcm
@@ -19,7 +19,8 @@ class Updater:
         'JTBC': jtbc.scrap, 
         'EBS': ebs.scrap, 
         'MBC': mbc.scrap, 
-        'KBS': kbs.scrap
+        'KBS': kbs.scrap, 
+        'TVN': tvn.scrap
     }
 
     def __init__(self):
