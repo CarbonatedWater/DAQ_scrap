@@ -1,4 +1,4 @@
 {
     "workbench.colorCustomizations": {},
-    "jupyter.jupyterServerType": "remote"
+    "jupyter.jupyterServerType": "local"
 }

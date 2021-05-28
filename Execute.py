@@ -1,4 +1,3 @@
-import os
 import sys
 import json
 import sqlite3
@@ -42,17 +41,20 @@ class Updater:
 
 
     # 스크랩 / DB에 저장된 직전 정보와 비교 후 DB 인서트
-    def content_check(self, ch, program_img_id) -> int:
+    def content_check(self, ch_command, program_img_id) -> int:
         new_content_cnt = 0
         # 1. 스크랩할 프로그램 리스트 추출
-        if ch != 'all':
-            self.cur.execute("{} WHERE ch = '{}';".format(query.get_program_info, ch))
+        if ch_command != 'all':
+            self.cur.execute(f"{query.get_program_info} WHERE ch = '{ch_command}';")
         else:
             self.cur.execute(query.get_program_info + ";")
         lst_programs = self.cur.fetchall()
 
         for prog in lst_programs:
             if prog[4] == 0: # 방영 종료
+                continue
+            # EBS 임시 생략
+            if (ch_command == 'all') & (prog[2] == 'EBS'):
                 continue
             time.sleep(random.randint(3, 8))
             print('===== prog: {}'.format(prog))
@@ -61,10 +63,10 @@ class Updater:
             ch = prog[2]
             url = prog[3]
             # 프로그램 방영일 추출
-            self.cur.execute("SELECT on_day FROM programs WHERE id = {};".format(_id))
+            self.cur.execute(f"SELECT on_day FROM programs WHERE id = {_id};")
             tmp = self.cur.fetchone()
             air_dates = tmp[0].split(',')
-            print("===== air date: {}".format(air_dates))
+            print(f"===== air date: {air_dates}")
             # 방영정보 스크랩
             results = self.SCRAPER[ch](name, url, air_dates, self.WEEK)
             if results is None:
@@ -72,7 +74,7 @@ class Updater:
             # 프로그램 회차 추출
             self.cur.execute(query.get_program_air_num_date.format(_id))
             tmp = self.cur.fetchone()
-            print("===== air No. & date: {} & result: {}".format(tmp, results))
+            print(f"===== air No. & date: {tmp} & result: {results}")
             for result in results:
                 #print('===== new scraped result: {}'.format(result))
                 null_items = []
@@ -100,7 +102,7 @@ class Updater:
                     # 앱에 Push 알림
                     push_message = "%s 방영정보가 업데이트 되었습니다!" % name
                     topic = program_img_id[name]
-                    print('===== topic: %s | message: %s' % (topic, push_message))
+                    print(f'===== topic: {topic} | message: {push_message}')
                     push_result = fcm.push_service.notify_topic_subscribers(topic_name=topic, message_body=push_message)
                     print(push_result)
                 elif new_air_num == tmp[0]:
@@ -161,7 +163,7 @@ if __name__ == "__main__":
         program_img_id = json.load(f)
     # 1. 프로그램 정보 체크
     new_info_cnt = updater.content_check(sys.argv[1], program_img_id)
-    print('===== scraping completed! new preview: {}'.format(new_info_cnt))
+    print(f'===== scraping completed! new preview: {new_info_cnt}')
     # 2. 이번주 방영정보 페이지 생성
     if new_info_cnt > 0:
         new_contents = updater.get_content()
@@ -173,7 +175,7 @@ if __name__ == "__main__":
     for program in program_img_id.items():
         program_data = updater.get_program_info(program[0])
         Upload.air_html(program_data, air_times, program[1])
-        print("===== {} air page is created!".format(program[0]))
+        print(f"===== {program[0]} air page is created!")
 
     updater.cur.close()
     updater.conn.close()
