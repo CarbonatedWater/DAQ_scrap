@@ -57,7 +57,7 @@ class Updater:
             if (ch_command == 'all') & (prog[2] == 'EBS'):
                 continue
             time.sleep(random.randint(3, 8))
-            print('===== prog: {}'.format(prog))
+            print(f'===== prog: {prog}')
             _id = prog[0]
             name = prog[1]
             ch = prog[2]
