@@ -71,7 +71,7 @@ def program_detail_html(contents, directory):
     p.write_text(html)
 
 
-def update_noti_html(ch_cnage, version=None):
+def update_noti_html(ch_change, version=None):
     p = Path('./pages') / 'update' / 'index.html'
     if version is None:
         raw = p.read_text()
@@ -81,9 +81,9 @@ def update_noti_html(ch_cnage, version=None):
     else:
         val = version
     # 채널 추가기능을 위한 업데이트 넘버 체크
-    if ch_cnage and val // 2 == 1:
+    if ch_change and val // 2 == 1:
         val += 2
-    elif not(ch_cnage) and val // 2 == 0:
+    elif not(ch_change) and val // 2 == 0:
         val += 1
 
     # change_type: "new", "change"
