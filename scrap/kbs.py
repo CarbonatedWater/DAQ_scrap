@@ -74,7 +74,7 @@ def scrap(prog_name, url, original_air_date, week):
         # 타이틀, 방영회차 수정
         title = content_info['title'].split('/')[0].strip()
         air_num = content_info['post_no']
-     
+    
         # 디스크립션 수정
         if prog_name == '제보자들':
             # air number, title 수정
@@ -83,7 +83,7 @@ def scrap(prog_name, url, original_air_date, week):
             if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
-        elif prog_name == '이슈 픽 쌤과 함께':
+        elif prog_name in ['이슈 픽 쌤과 함께', '시사 직격']:
             air_num_padding = re.compile(r"^\[([0-9]+)회\] ").search(title)
             air_num = air_num_padding.group(1)
             title = title.replace(air_num_padding.group(0), '')

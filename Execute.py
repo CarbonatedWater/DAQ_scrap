@@ -53,9 +53,6 @@ class Updater:
         for prog in lst_programs:
             if prog[4] == 0: # 방영 종료
                 continue
-            # EBS 임시 생략
-            if (ch_command == 'all') & (prog[2] == 'EBS'):
-                continue
             time.sleep(random.randint(3, 8))
             print(f'===== prog: {prog}')
             _id = prog[0]
