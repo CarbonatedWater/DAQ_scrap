@@ -126,6 +126,10 @@ class Updater:
     def get_program_info(self, program_name):
         self.cur.execute(query.get_program_air_info_10.format(program_name))
         return self.cur.fetchall()
+
+    def get_program_ch(self, program_id):
+        self.cur.execute(query.get_program_url.format(program_id))
+        return self.cur.fetchall()
     
 
     # 프로그램 방영시간 기정보 가져오기
@@ -167,11 +171,12 @@ if __name__ == "__main__":
         # 방영시간 정보 추출
         air_times = updater.get_program_air_time()
         print(air_times)
-        Upload.air_html(new_contents, air_times, 'week')
+        Upload.air_html(new_contents, air_times, 'week', None, None)
     # 3. 프로그램별 방영리스트 페이지 생성
     for program in program_img_id.items():
         program_data = updater.get_program_info(program[0])
-        Upload.air_html(program_data, air_times, program[1])
+        program_url = updater.get_program_ch(program_data[0][0])
+        Upload.air_html(program_data, air_times, program[1], program[0], program_url[0][0])
         print(f"===== {program[0]} air page is created!")
 
     updater.cur.close()

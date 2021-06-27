@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from bs4 import BeautifulSoup
 import upload_program_info
+from pages import share_proto
 
 
 HTML_FRONT = '''
@@ -23,8 +24,9 @@ HTML_REAR = '''
 '''
 PATH_GIT_REPO = r'path\to\your\project\folder\.git'
 
+CH_COLOR = {"EBS": "green", "KBS": "royalblue", "JTBC": "orange", "MBC": "black", "SBS": "royalred", "TVN": "red"}
 
-def air_html(contents, air_times, directory):
+def air_html(contents, air_times, directory, prog_name, program_url):
     inner = ''
     # 프로그램 방영순서로 정렬
     sorted_contents = []
@@ -36,7 +38,11 @@ def air_html(contents, air_times, directory):
     for content in sorted_contents:
         tmp_td = ''
         program_id = None
+        # 방영 공유 페이지 생성
+        if directory != 'week':
+            create_share_html(content, air_times, prog_name, directory, program_url)
         for i, col in enumerate(content):
+            # 방영정보 리스트 테이블 생성
             if i == 3:
                 program_air_time = air_times[program_id-1][0]
                 tmp_td += "<td>{} {}</td>".format(col, program_air_time)
@@ -53,6 +59,20 @@ def air_html(contents, air_times, directory):
         p = Path('./pages') / directory / 'index.html'
     else:
         p = Path('./pages/airlist') / directory / 'index.html'
+    p.write_text(html)
+
+
+def create_share_html(content, air_times, prog_name, directory, program_url):
+    ch = directory.split("_")[0]
+    if content[4].startswith("http"):
+        img_url = content[4]
+    else:
+        img_url = f"https://carbonatedwater.github.io/images/program/{directory}.jpg"
+    html = share_proto.html.format(prog_name, content[2], content[2], content[1], 
+    prog_name, CH_COLOR[ch], ch, content[3], air_times[content[0]-1][0], 
+    img_url, content[6], program_url)
+    p = Path('./pages/airlist') / directory / '{}.html'.format(content[1])
+    print(p)
     p.write_text(html)
 
 
