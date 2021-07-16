@@ -1,7 +1,6 @@
 """
 EBS 프로그램 수집
 """
-import requests
 from requests import compat
 import re
 from bs4 import BeautifulSoup
@@ -15,10 +14,7 @@ REFER = 'https://home.ebs.co.kr/'
 
 def scrap(prog_name, url, original_air_date, week):
     s = utils.sess(REFER)
-    if prog_name != '다큐프라임':
-        resp = requests.get(url)
-    else:
-        resp = s.get(url)
+    resp = s.get(url)
     soup = BeautifulSoup(resp.text, 'lxml')
     if prog_name != '다큐프라임':
         if prog_name == '다큐 잇it':
