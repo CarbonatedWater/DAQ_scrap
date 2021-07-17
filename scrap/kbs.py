@@ -43,7 +43,8 @@ BBS_ID = {
     '생로병사의 비밀': 'T2002-0429-04-185153', 
     '다큐멘터리 3일': 'T2007-0188-04-895363', 
     '시사 직격': 'T2019-0280-04-513653', 
-    '이슈 픽 쌤과 함께': 'T2020-0372-04-880197'
+    '이슈 픽 쌤과 함께': 'T2020-0372-04-880197', 
+    '한국인의 밥상': 'T2010-1657-04-625263'
 }
 
 
@@ -83,7 +84,7 @@ def scrap(prog_name, url, original_air_date, week):
             if re.compile(r".+첫 번째 이야기").search(content_info['description']) is not None:
                 front_padding = re.compile(r"(.+)첫 번째 이야기").search(content_info['description']).group(1)
                 description = content_info['description'].replace(front_padding, "")
-        elif prog_name in ['이슈 픽 쌤과 함께', '시사 직격']:
+        elif prog_name in ['이슈 픽 쌤과 함께', '시사 직격', '한국인의 밥상']:
             air_num_padding = re.compile(r"^\[([0-9]+)회\] ").search(title)
             air_num = air_num_padding.group(1)
             title = title.replace(air_num_padding.group(0), '')
@@ -124,14 +125,11 @@ def scrap(prog_name, url, original_air_date, week):
         regdate = parse(regdate_tmp).date()
     except:
         pass
-    if prog_name in ['다큐세상', '이슈 픽 쌤과 함께']:
-        air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title'].split('/')[1]).group()
-        air_date = utils.trans_date(air_date)
-    elif prog_name == '세상의 모든 다큐':
+    if prog_name == '세상의 모든 다큐':
         air_date = str(regdate)
     elif prog_name in ['다큐멘터리 3일', '생로병사의 비밀']:
         air_date = utils.trans_date(air_date)
-    elif prog_name in ['특파원 보고 세계는 지금']:
+    elif prog_name in ['특파원 보고 세계는 지금', '다큐세상', '이슈 픽 쌤과 함께', '한국인의 밥상']:
         air_date = re.search(r'\d{4}년 ?\d{1,2}월 ?\d{1,2}일', content_info['title']).group()
         air_date = utils.trans_date(air_date)
     elif prog_name == '다큐 인사이트':
