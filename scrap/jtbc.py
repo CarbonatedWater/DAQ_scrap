@@ -46,7 +46,7 @@ def scrap(prog_name, url, original_air_date, week):
             tmp_date = content.select_one('span.date').text
             air_date = re.match(r"^\d{4}(\.\d{2}){2}", tmp_date).group().replace(".", "-")
             if prog_name == '다큐 플러스':
-                title = content.select_one('span.info span.txt').text
+                title = '다큐 플러스'
             else:
                 title = content.select_one('span.info span.tit').text
             preview_img = content.select_one('span.img > img')['src']
